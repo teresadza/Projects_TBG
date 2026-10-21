@@ -7,7 +7,7 @@ Teresa Brandts-Giesen. I work on both sides of investment data: the portfolio qu
 | Project | What it shows | Stack |
 |---|---|---|
 | [Climate Disclosure Warehouse](ClimateDisclosureWarehouse/) | A layered SQL pipeline that turns fund holdings and vendor emissions data into financed emissions, carbon footprint, WACI and coverage. Handles late reporters, vendor restatements and Scope 3 gaps; data quality checks stop bad runs; known-answer tests. Synthetic data. [Dashboard](https://teresadza.github.io/investment-data-portfolio/ClimateDisclosureWarehouse/docs/) | SQL (DuckDB), Python, pytest, D3 |
-| [Datastream extraction](Datastream/) | Config-driven, incremental extract of total return indices from LSEG Datastream: history loaded once, then a rolling current-month value each run, with logging. | Python, DatastreamPy, pandas |
+| [Datastream extraction](Datastream_/) | Config-driven, incremental extract of total return indices from LSEG Datastream: history loaded once, then a rolling current-month value each run, with logging. | Python, DatastreamPy, pandas |
 
 ## How the work is built
 
