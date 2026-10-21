@@ -33,8 +33,8 @@ Force a fresh full seed any time:
 ## Files
 
 - `datastream_extract.py` - the extraction.
-- `config.ini` - login, tickers, dates, and the incremental settings. Edit this,
-  not the script.
+- `config.example.ini` - template for `config.ini`: login, tickers, dates and
+  the incremental settings. Edit the config, not the script.
 - `run_datastream.bat` - double-click to run on demand.
 - `output/`
   - `datastream_RI_master.csv` - the authoritative accumulating dataset
@@ -50,6 +50,13 @@ Force a fresh full seed any time:
 - `start_date` - first point for the one-time seed.
 - `daily_lookback_days` - how far back to look for the latest daily point
   (covers weekends and holidays). Default 14.
+
+## Setup
+
+Copy `config.example.ini` to `config.ini` and put your DSWS username and
+password in it. `config.ini` is listed in `.gitignore`, so the login stays on
+your machine. You need your own Datastream (LSEG) licence; no market data is
+included in this repo.
 
 ## Running it
 
