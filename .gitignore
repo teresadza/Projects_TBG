@@ -1,0 +1,21 @@
+# ---- Passwords and certificates: never commit ----
+config.ini
+*.pem
+.env
+*.env
+import DatastreamPy as dsws.txt
+
+# ---- Licensed LSEG data and client work: not for a public repo ----
+**/output/
+ReturnProfile/
+Monte Carlo/
+*.pbix
+MTT_*.html
+Returns.xlsx
+
+# ---- Temporary and build files ----
+~$*
+*.duckdb
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/

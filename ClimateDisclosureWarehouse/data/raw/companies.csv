@@ -1,0 +1,161 @@
+company_id,company_name,sector,country,high_risk_sector
+C0001,Meridian Brands Group,Consumer Discretionary,AU,False
+C0002,Kestrel Capital Group,Financials,JP,False
+C0003,Albany Motors Ltd,Consumer Discretionary,AU,False
+C0004,Pacific Energy Ltd,Energy,AU,True
+C0005,Cascade Motors Ltd,Consumer Discretionary,AU,False
+C0006,Harbour Health Ltd,Health Care,DE,False
+C0007,Aurora Engineering Group,Industrials,CA,False
+C0008,Riverstone Retail Ltd,Consumer Discretionary,NZ,False
+C0009,Ridge Machinery Group,Industrials,NZ,False
+C0010,Clearwater Health Group,Health Care,GB,False
+C0011,Ironbark Motors Ltd,Consumer Discretionary,CA,False
+C0012,Westwind Health Group,Health Care,DE,False
+C0013,Clearwater Insurance Group,Financials,AU,False
+C0014,Ridge Medical Group,Health Care,NZ,False
+C0015,Ironbark Medical Group,Health Care,FR,False
+C0016,Silverfern Engineering Group,Industrials,NZ,False
+C0017,Orbit Property Group,Real Estate,NZ,False
+C0018,Clearwater Resources Group,Materials,GB,True
+C0019,Coastal Digital Group,Information Technology,GB,False
+C0020,Albany Software Group,Information Technology,NZ,False
+C0021,Orbit Energy Networks Ltd,Utilities,NZ,True
+C0022,Silverfern Digital Ltd,Information Technology,FR,False
+C0023,Coastal Medical Group,Health Care,US,False
+C0024,Kestrel Logistics Ltd,Industrials,AU,False
+C0025,Tasman Beverages Ltd,Consumer Staples,DE,False
+C0026,Beacon Retail Ltd,Consumer Discretionary,AU,False
+C0027,Ironbark Machinery Ltd,Industrials,GB,False
+C0028,Summit Digital Ltd,Information Technology,US,False
+C0029,Ironbark Foods Group,Consumer Staples,DE,False
+C0030,Beacon Property Ltd,Real Estate,NZ,False
+C0031,Cascade Generation Group,Utilities,FR,True
+C0032,Northgate Energy Ltd,Energy,JP,True
+C0033,Cascade Petroleum Ltd,Energy,AU,True
+C0034,Totara Fuels Group,Energy,CA,True
+C0035,Aurora Capital Group,Financials,JP,False
+C0036,Silverfern Minerals Ltd,Materials,NZ,True
+C0037,Westwind Capital Group,Financials,AU,False
+C0038,Highland Brands Group,Consumer Discretionary,US,False
+C0039,Albany Cement Ltd,Materials,CA,True
+C0040,Riverstone Systems Group,Information Technology,GB,False
+C0041,Coastal Insurance Ltd,Financials,US,False
+C0042,Tasman Cement Ltd,Materials,NZ,True
+C0043,Lakeside Machinery Ltd,Industrials,NZ,False
+C0044,Tasman Engineering Ltd,Industrials,FR,False
+C0045,Lakeside Minerals Group,Materials,NZ,True
+C0046,Summit Cement Group,Materials,US,True
+C0047,Riverstone Software Ltd,Information Technology,GB,False
+C0048,Orbit Logistics Ltd,Industrials,CA,False
+C0049,Westwind Property Group,Real Estate,CA,False
+C0050,Riverstone Cement Ltd,Materials,GB,True
+C0051,Harbour Resources Ltd,Materials,JP,True
+C0052,Riverstone Petroleum Ltd,Energy,CA,True
+C0053,Cascade Logistics Ltd,Industrials,DE,False
+C0054,Highland Engineering Ltd,Industrials,JP,False
+C0055,Kauri Systems Group,Information Technology,DE,False
+C0056,Harbour Estates Group,Real Estate,JP,False
+C0057,Harbour Property Ltd,Real Estate,US,False
+C0058,Coastal Generation Ltd,Utilities,GB,True
+C0059,Cascade Health Group,Health Care,NZ,False
+C0060,Pacific REIT Group,Real Estate,US,False
+C0061,Silverfern Petroleum Ltd,Energy,CA,True
+C0062,Westwind Logistics Ltd,Industrials,AU,False
+C0063,Totara Health Group,Health Care,DE,False
+C0064,Aurora Software Ltd,Information Technology,DE,False
+C0065,Southern Financial Group,Financials,AU,False
+C0066,Meridian Engineering Group,Industrials,US,False
+C0067,Riverstone Logistics Ltd,Industrials,GB,False
+C0068,Coastal Telecom Ltd,Communication Services,GB,False
+C0069,Aurora Fuels Ltd,Energy,AU,True
+C0070,Orbit Software Ltd,Information Technology,FR,False
+C0071,Totara Power Group,Utilities,US,True
+C0072,Coastal Systems Ltd,Information Technology,AU,False
+C0073,Northgate Financial Ltd,Financials,JP,False
+C0074,Tasman Capital Ltd,Financials,DE,False
+C0075,Clearwater Fuels Ltd,Energy,NZ,True
+C0076,Meridian Motors Ltd,Consumer Discretionary,NZ,False
+C0077,Albany Property Ltd,Real Estate,DE,False
+C0078,Pacific Biotech Ltd,Health Care,AU,False
+C0079,Aurora Power Ltd,Utilities,US,True
+C0080,Pacific Dairy Ltd,Consumer Staples,NZ,False
+C0081,Albany Engineering Ltd,Industrials,AU,False
+C0082,Aurora REIT Ltd,Real Estate,US,False
+C0083,Orbit Generation Group,Utilities,US,True
+C0084,Kestrel Systems Ltd,Information Technology,NZ,False
+C0085,Beacon Insurance Group,Financials,GB,False
+C0086,Ridge Motors Ltd,Consumer Discretionary,US,False
+C0087,Riverstone Financial Group,Financials,JP,False
+C0088,Pacific Brands Ltd,Consumer Discretionary,JP,False
+C0089,Kauri Brands Ltd,Consumer Discretionary,US,False
+C0090,Summit Resources Ltd,Materials,US,True
+C0091,Ironbark Systems Group,Information Technology,AU,False
+C0092,Kauri Cement Ltd,Materials,US,True
+C0093,Silverfern Industries Group,Industrials,NZ,False
+C0094,Highland Energy Ltd,Energy,DE,True
+C0095,Beacon Logistics Ltd,Industrials,DE,False
+C0096,Aurora Systems Ltd,Information Technology,AU,False
+C0097,Coastal Cement Ltd,Materials,NZ,True
+C0098,Riverstone Health Ltd,Health Care,CA,False
+C0099,Aurora Resources Ltd,Materials,GB,True
+C0100,Northgate Property Group,Real Estate,NZ,False
+C0101,Meridian Estates Ltd,Real Estate,AU,False
+C0102,Meridian Systems Ltd,Information Technology,US,False
+C0103,Harbour REIT Ltd,Real Estate,FR,False
+C0104,Ironbark Industries Ltd,Industrials,DE,False
+C0105,Meridian Property Ltd,Real Estate,US,False
+C0106,Totara Systems Ltd,Information Technology,AU,False
+C0107,Southern Software Ltd,Information Technology,US,False
+C0108,Ironbark Estates Ltd,Real Estate,DE,False
+C0109,Highland Industries Group,Industrials,GB,False
+C0110,Orbit Estates Ltd,Real Estate,NZ,False
+C0111,Silverfern Software Ltd,Information Technology,US,False
+C0112,Ironbark Health Ltd,Health Care,JP,False
+C0113,Westwind Software Ltd,Information Technology,GB,False
+C0114,Ridge Petroleum Ltd,Energy,JP,True
+C0115,Westwind Foods Group,Consumer Staples,JP,False
+C0116,Kauri Health Group,Health Care,CA,False
+C0117,Albany Health Ltd,Health Care,DE,False
+C0118,Kestrel Insurance Ltd,Financials,NZ,False
+C0119,Granite Software Group,Information Technology,CA,False
+C0120,Aurora Digital Group,Information Technology,FR,False
+C0121,Pacific Engineering Ltd,Industrials,GB,False
+C0122,Coastal Industries Ltd,Industrials,NZ,False
+C0123,Highland Systems Group,Information Technology,NZ,False
+C0124,Granite Energy Ltd,Energy,NZ,True
+C0125,Tasman Energy Networks Ltd,Utilities,NZ,True
+C0126,Kauri Estates Ltd,Real Estate,AU,False
+C0127,Summit Systems Ltd,Information Technology,GB,False
+C0128,Kestrel Brands Group,Consumer Discretionary,FR,False
+C0129,Kauri Machinery Ltd,Industrials,NZ,False
+C0130,Aurora Generation Ltd,Utilities,NZ,True
+C0131,Westwind Medical Ltd,Health Care,DE,False
+C0132,Summit Petroleum Ltd,Energy,FR,True
+C0133,Aurora Retail Ltd,Consumer Discretionary,AU,False
+C0134,Pacific Digital Ltd,Information Technology,NZ,False
+C0135,Highland Medical Ltd,Health Care,FR,False
+C0136,Lakeside Logistics Group,Industrials,AU,False
+C0137,Cascade Engineering Ltd,Industrials,US,False
+C0138,Cascade Insurance Ltd,Financials,GB,False
+C0139,Coastal Brands Group,Consumer Discretionary,NZ,False
+C0140,Silverfern Energy Ltd,Energy,AU,True
+C0141,Riverstone Fuels Group,Energy,DE,True
+C0142,Riverstone Brands Group,Consumer Discretionary,US,False
+C0143,Beacon Minerals Ltd,Materials,US,True
+C0144,Summit Energy Ltd,Energy,AU,True
+C0145,Harbour Networks Ltd,Communication Services,FR,False
+C0146,Ironbark Logistics Group,Industrials,US,False
+C0147,Totara Machinery Group,Industrials,DE,False
+C0148,Summit Fuels Ltd,Energy,AU,True
+C0149,Aurora Dairy Ltd,Consumer Staples,AU,False
+C0150,Kauri Software Ltd,Information Technology,DE,False
+C0151,Ridge Fuels Group,Energy,NZ,True
+C0152,Westwind Beverages Ltd,Consumer Staples,US,False
+C0153,Tasman Media Ltd,Communication Services,GB,False
+C0154,Harbour Retail Ltd,Consumer Discretionary,GB,False
+C0155,Meridian Minerals Ltd,Materials,NZ,True
+C0156,Granite Power Ltd,Utilities,US,True
+C0157,Northgate Medical Group,Health Care,CA,False
+C0158,Riverstone Motors Ltd,Consumer Discretionary,AU,False
+C0159,Meridian Software Ltd,Information Technology,CA,False
+C0160,Cascade Cement Group,Materials,CA,True

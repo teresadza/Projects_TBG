@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Climate Disclosure Warehouse</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400&display=swap">
+<style>
+/* Layout: one column of cards on a 1200px grid, two charts per row when wide */
+:root {
+  --bg: #f4f6f5; --panel: #ffffff; --fg: #1b2420; --muted: #5f6b66; --line: #dde3e0;
+  --accent: #1f6f5c; --s2: #b5652a; --s3: #5a62a8; --grid: #e9eeeb; --axis: #b8c2bd;
+  --ok: #1d7a4a; --warn: #a66a00; --bad: #b8382d; --shadow: 0 4px 16px rgba(20, 30, 25, .1);
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "IBM Plex Serif", Georgia, serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #121715; --panel: #1a201d; --fg: #e5ebe8; --muted: #9aa7a1; --line: #2c3531;
+    --accent: #5fc0a2; --s2: #e39a5e; --s3: #9aa2ea; --grid: #232b27; --axis: #44504a;
+    --ok: #5bc48a; --warn: #e3ad4c; --bad: #f07c70; --shadow: 0 4px 16px rgba(0, 0, 0, .5); color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; }
+.wrap { max-width: 1200px; margin-inline: auto; padding-block: 28px 48px; padding-left: max(16px, 3vw); padding-right: max(16px, 3vw); display: grid; gap: 22px; }
+h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 30px; }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 75ch; line-height: 1.5; }
+.badge { display: inline-block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); border: 1px solid currentColor; border-radius: 99px; padding: 1px 8px; margin-left: 8px; vertical-align: middle; }
+.controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; }
+.controls label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+select { font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr)); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.tile .lbl { font-size: 12px; color: var(--muted); }
+.tile .big { font-family: var(--serif); font-size: 28px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.tile .unit { font-size: 12px; color: var(--muted); }
+.tile .chg { font-size: 12px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.good { color: var(--ok); } .badc { color: var(--bad); }
+.grid2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); }
+.card h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.card .note { margin: 4px 0 10px; font-size: 12px; color: var(--muted); max-width: 80ch; line-height: 1.45; }
+.chart { position: relative; min-height: 260px; }
+.chart svg { display: block; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 11px; font-family: var(--sans); }
+.chart .grid line { stroke: var(--grid); }
+.chart .domain { stroke: var(--axis); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.legend i { display: inline-block; width: 14px; height: 0; border-top: 2px solid; margin-right: 5px; vertical-align: middle; }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); padding: 5px 8px; font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; z-index: 2; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: right; font-size: 12px; font-weight: 500; color: var(--muted); padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.l { text-align: left; }
+.pill { font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid currentColor; }
+ol.method { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; line-height: 1.5; max-width: 85ch; }
+code { font-size: .95em; }
+.foot { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Climate Disclosure Warehouse <span class="badge">Synthetic data</span></h1>
+    <p class="lede">Fund climate metrics built from holdings and vendor emissions data by a SQL pipeline: financed emissions, carbon footprint, weighted average carbon intensity (WACI) and data coverage, for three made-up funds at each 31 March reporting date.</p>
+  </header>
+
+  <div class="controls">
+    <label for="fund">Fund <select id="fund"></select></label>
+    <label for="scope">Emissions scope <select id="scope"></select></label>
+  </div>
+
+  <section class="tiles" id="tiles" aria-label="Headline figures"></section>
+
+  <div class="grid2">
+    <section class="card" id="footprint">
+      <h2>Carbon footprint</h2>
+      <p class="note">Tonnes of attributed emissions per $1m invested in covered corporate holdings.</p>
+      <div class="legend" id="leg1"></div>
+      <div class="chart" id="c-footprint"></div>
+    </section>
+    <section class="card" id="waci">
+      <h2>Weighted average carbon intensity</h2>
+      <p class="note">Tonnes per $1m of company revenue, weighted by each holding's share of the covered portfolio.</p>
+      <div class="legend" id="leg2"></div>
+      <div class="chart" id="c-waci"></div>
+    </section>
+    <section class="card" id="coverage">
+      <h2>Data coverage by scope</h2>
+      <p class="note">Share of corporate holdings (by value) with emissions and EVIC data, latest reporting date. The darker part uses the prior year's figures because the company had not reported yet.</p>
+      <div class="chart" id="c-coverage"></div>
+    </section>
+    <section class="card" id="sectors">
+      <h2>Financed emissions by sector</h2>
+      <p class="note">Scope 1+2, latest reporting date.</p>
+      <div class="chart" id="c-sectors"></div>
+    </section>
+  </div>
+
+  <section class="card" id="contributors">
+    <h2>Ten largest contributors</h2>
+    <p class="note">Scope 1+2 financed emissions, latest reporting date.</p>
+    <div class="tablewrap"><table id="t-top"><thead><tr>
+      <th class="l">#</th><th class="l">Company</th><th class="l">Sector</th><th class="l">Holding</th>
+      <th>Value ($m)</th><th>Financed (t)</th><th>Share of fund</th><th>Intensity (t/$m rev)</th><th class="l">Data year</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card" id="quality">
+    <h2>Data quality checks, last run</h2>
+    <p class="note">Errors stop the pipeline. Warnings are reported and the run continues.</p>
+    <div class="tablewrap"><table id="t-dq"><thead><tr>
+      <th class="l">Check</th><th class="l">Result</th><th>Rows</th><th class="l">What it tests</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card" id="method">
+    <h2>How the numbers are worked out</h2>
+    <ol class="method">
+      <li><b>Attribution factor</b> = holding value ÷ company EVIC. Listed equity uses market value; corporate bonds use face value (outstanding amount), following PCAF.</li>
+      <li><b>Financed emissions</b> = Σ attribution factor × company emissions.</li>
+      <li><b>Carbon footprint</b> = financed emissions ÷ covered holding value in $m.</li>
+      <li><b>WACI</b> = Σ weight × (company emissions ÷ company revenue in $m), with weights equal to each holding's share of the covered value.</li>
+      <li><b>Year matching.</b> A 31 March report uses the financial year ending the previous 31 December. If a company has not reported it yet, the prior year is used and flagged. EVIC and revenue come from the same year as the emissions.</li>
+      <li><b>Scope.</b> Listed equity and corporate bonds only. Sovereign bonds and cash count in fund value but not in the metrics.</li>
+    </ol>
+    <p class="foot" id="gen"></p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<script>
+(function () {
+  const D = window.CDW_DATA;
+  const $ = (id) => document.getElementById(id);
+  const fmtInt = d3.format(','), f1 = d3.format(',.1f'), pct = d3.format('.1%'), pct0 = d3.format('.0%');
+  const parse = (s) => new Date(s.slice(0, 10) + 'T00:00:00Z');
+  const yr = (s) => 'Mar ' + s.slice(0, 4);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const FUNDS = [...new Map(D.metrics.map((m) => [m.fund_id, m.fund_name])).entries()];
+  const SCOPES = ['Scope 1+2', 'Scope 1', 'Scope 2', 'Scope 3'];
+  const fundColor = (i) => ['--accent', '--s2', '--s3'][i % 3];
+
+  const fSel = $('fund'), sSel = $('scope');
+  FUNDS.forEach(([id, name]) => fSel.add(new Option(name, id)));
+  SCOPES.forEach((s) => sSel.add(new Option(s, s)));
+  fSel.onchange = sSel.onchange = draw;
+  let resizeT; window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(draw, 120); });
+
+  const m = (fund, scope, ac = 'All corporate') => D.metrics.filter((r) => r.fund_id === fund && r.scope === scope && r.asset_class === ac)
+    .sort((a, b) => a.report_date.localeCompare(b.report_date));
+
+  function tiles(fund, scope) {
+    const s = m(fund, scope), cur = s[s.length - 1], prev = s[s.length - 2];
+    const items = [
+      ['Financed emissions', fmtInt(Math.round(cur.financed_emissions_t)), 'tonnes', cur.financed_emissions_t / prev.financed_emissions_t - 1, true],
+      ['Carbon footprint', f1(cur.carbon_footprint_t_per_m), 't per $m invested', cur.carbon_footprint_t_per_m / prev.carbon_footprint_t_per_m - 1, true],
+      ['WACI', f1(cur.waci_t_per_revenue_m), 't per $m revenue', cur.waci_t_per_revenue_m / prev.waci_t_per_revenue_m - 1, true],
+      ['Data coverage', pct(cur.coverage), 'of corporate value', cur.coverage - prev.coverage, false, true],
+      ['Using prior year data', pct(cur.fallback_share), 'of corporate value', null],
+    ];
+    const el = $('tiles'); el.replaceChildren();
+    for (const [lbl, val, unit, chg, lowerBetter, pts] of items) {
+      const c = document.createElement('div'); c.className = 'card tile';
+      c.innerHTML = '<div class="lbl"></div><div class="big"></div><div class="unit"></div><div class="chg"></div>';
+      c.children[0].textContent = lbl + ', ' + yr(cur.report_date);
+      c.children[1].textContent = val; c.children[2].textContent = unit;
+      if (chg != null) {
+        const good = lowerBetter ? chg < 0 : chg > 0;
+        c.children[3].textContent = (chg >= 0 ? '+' : '−') + (pts ? f1(Math.abs(chg * 100)) + ' pts' : pct(Math.abs(chg))) + ' vs ' + yr(prev.report_date);
+        c.children[3].className = 'chg ' + (good ? 'good' : 'badc');
+      }
+      el.appendChild(c);
+    }
+  }
+
+  function tipFor(el) { const t = document.createElement('div'); t.className = 'tip'; t.hidden = true; el.appendChild(t); return t; }
+  function place(tip, el, x, y) {
+    tip.hidden = false; const w = el.clientWidth; let l = x + 12; if (l + tip.offsetWidth > w) l = x - tip.offsetWidth - 12;
+    tip.style.left = Math.max(0, l) + 'px'; tip.style.top = Math.max(0, y - tip.offsetHeight - 8) + 'px';
+  }
+  const clean = (g) => g.attr('font-size', null).attr('font-family', null);
+
+  function lines(el, legEl, scope, field, fund) {
+    el.replaceChildren(); legEl.replaceChildren();
+    const W = el.clientWidth, H = 260, mg = { t: 10, r: 14, b: 26, l: 44 };
+    const series = FUNDS.map(([id, name], i) => ({ id, name, color: css(fundColor(i)), pts: m(id, scope).map((r) => ({ d: parse(r.report_date), v: r[field], r })) }));
+    const all = series.flatMap((s) => s.pts);
+    const x = d3.scaleUtc(d3.extent(all, (p) => p.d), [mg.l + 10, W - mg.r - 18]);
+    const y = d3.scaleLinear([0, d3.max(all, (p) => p.v) * 1.08], [H - mg.b, mg.t]).nice();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(5)).join('line').attr('x1', mg.l).attr('x2', W - mg.r).attr('y1', y).attr('y2', y);
+    svg.append('g').attr('transform', `translate(0,${H - mg.b})`).call(d3.axisBottom(x).tickValues(series[0].pts.map((p) => p.d)).tickFormat(d3.utcFormat('Mar %Y')).tickSizeOuter(0)).call(clean);
+    svg.append('g').attr('transform', `translate(${mg.l},0)`).call(d3.axisLeft(y).ticks(5).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    for (const s of series) {
+      const on = s.id === fund;
+      svg.append('path').datum(s.pts).attr('fill', 'none').attr('stroke', s.color).attr('stroke-width', on ? 2.5 : 1.5).attr('opacity', on ? 1 : 0.45)
+        .attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.v)));
+      svg.append('g').selectAll('circle').data(s.pts).join('circle').attr('cx', (p) => x(p.d)).attr('cy', (p) => y(p.v)).attr('r', on ? 3.5 : 2.5).attr('fill', s.color).attr('opacity', on ? 1 : 0.45);
+      const lg = document.createElement('span'); const i = document.createElement('i'); i.style.borderColor = s.color; lg.append(i, s.name); legEl.appendChild(lg);
+    }
+    const tip = tipFor(el), dates = series[0].pts.map((p) => p.d);
+    svg.append('rect').attr('x', mg.l).attr('y', mg.t).attr('width', W - mg.l - mg.r).attr('height', H - mg.t - mg.b).attr('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [mx, my] = d3.pointer(ev); const i = d3.minIndex(dates, (d) => Math.abs(x(d) - mx));
+        tip.replaceChildren(); const h = document.createElement('div'); h.style.color = 'var(--muted)'; h.textContent = d3.utcFormat('%d %b %Y')(dates[i]); tip.appendChild(h);
+        for (const s of series) { const r = document.createElement('div'); r.textContent = s.name + '  ' + f1(s.pts[i].v); tip.appendChild(r); }
+        place(tip, el, x(dates[i]), my);
+      }).on('pointerleave', () => { tip.hidden = true; });
+  }
+
+  function coverage(el, fund) {
+    el.replaceChildren();
+    const latest = d3.max(D.metrics, (r) => r.report_date);
+    const rows = SCOPES.map((s) => D.metrics.find((r) => r.fund_id === fund && r.scope === s && r.asset_class === 'All corporate' && r.report_date === latest));
+    const W = el.clientWidth, rowH = 46, H = rows.length * rowH + 24, lw = 74;
+    const x = d3.scaleLinear([0, 1], [lw, W - 46]);
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    svg.append('g').attr('class', 'grid').selectAll('line').data([0, .25, .5, .75, 1]).join('line').attr('x1', x).attr('x2', x).attr('y1', 0).attr('y2', H - 20);
+    svg.append('g').attr('transform', `translate(0,${H - 20})`).call(d3.axisBottom(x).tickValues([0, .25, .5, .75, 1]).tickFormat(pct0).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    rows.forEach((r, i) => {
+      const y0 = i * rowH + 8;
+      svg.append('text').attr('x', 0).attr('y', y0 + 15).text(r.scope);
+      svg.append('rect').attr('x', lw).attr('y', y0).attr('width', x(1) - lw).attr('height', 22).attr('rx', 4).attr('fill', css('--grid'));
+      svg.append('rect').attr('x', lw).attr('y', y0).attr('width', x(r.coverage) - lw).attr('height', 22).attr('rx', 4).attr('fill', css('--accent')).attr('opacity', .55);
+      svg.append('rect').attr('x', lw).attr('y', y0).attr('width', x(r.fallback_share) - lw).attr('height', 22).attr('rx', 4).attr('fill', css('--accent'));
+      svg.append('text').attr('x', x(r.coverage) + 6).attr('y', y0 + 15).text(pct(r.coverage));
+    });
+  }
+
+  function sectors(el, fund) {
+    el.replaceChildren();
+    const latest = d3.max(D.sectors, (r) => r.report_date);
+    const rows = D.sectors.filter((r) => r.fund_id === fund && r.report_date === latest).sort((a, b) => b.financed_emissions_t - a.financed_emissions_t);
+    const total = d3.sum(rows, (r) => r.financed_emissions_t);
+    const W = el.clientWidth, rowH = 24, H = rows.length * rowH + 4;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const probe = svg.append('text'); const lw = d3.max(rows, (r) => { probe.text(r.sector); return probe.node().getComputedTextLength(); }) + 10; probe.remove();
+    const x = d3.scaleLinear([0, d3.max(rows, (r) => r.financed_emissions_t)], [lw, W - 90]);
+    rows.forEach((r, i) => {
+      const y0 = i * rowH + 2;
+      svg.append('text').attr('x', 0).attr('y', y0 + 14).text(r.sector);
+      svg.append('rect').attr('x', lw).attr('y', y0 + 3).attr('width', Math.max(1, x(r.financed_emissions_t) - lw)).attr('height', 14).attr('rx', 3).attr('fill', css('--accent'));
+      svg.append('text').attr('x', x(r.financed_emissions_t) + 6).attr('y', y0 + 14).text(fmtInt(Math.round(r.financed_emissions_t)) + ' t (' + pct0(r.financed_emissions_t / total) + ')');
+    });
+  }
+
+  function top(fund) {
+    const tb = document.querySelector('#t-top tbody'); tb.replaceChildren();
+    for (const r of D.top.filter((t) => t.fund_id === fund)) {
+      const tr = document.createElement('tr');
+      const cells = [[r.rank, 'l'], [r.company_name, 'l'], [r.sector, 'l'], [r.asset_class, 'l'], [f1(r.market_value_nzd / 1e6)],
+        [fmtInt(Math.round(r.financed_emissions_t))], [pct(r.share_of_fund)], [fmtInt(Math.round(r.intensity_t_per_revenue_m))], [r.is_fallback ? 'Prior year' : 'Current', 'l']];
+      for (const [t, c] of cells) { const td = document.createElement('td'); td.textContent = t; if (c) td.className = c; tr.appendChild(td); }
+      tb.appendChild(tr);
+    }
+  }
+
+  function dq() {
+    const tb = document.querySelector('#t-dq tbody'); tb.replaceChildren();
+    for (const r of D.dq) {
+      const tr = document.createElement('tr');
+      const status = r.failures === 0 ? ['Pass', 'good'] : r.severity === 'error' ? ['Fail', 'badc'] : ['Warning', ''];
+      const cells = [[r.check_id, 'l'], [null, 'l'], [fmtInt(r.failures)], [r.description, 'l']];
+      cells.forEach(([t, c], i) => {
+        const td = document.createElement('td'); td.className = c || '';
+        if (i === 1) { const p = document.createElement('span'); p.className = 'pill ' + status[1]; if (!status[1]) p.style.color = 'var(--warn)'; p.textContent = status[0]; td.appendChild(p); }
+        else td.textContent = t;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    }
+  }
+
+  function draw() {
+    const fund = fSel.value, scope = sSel.value;
+    tiles(fund, scope);
+    lines($('c-footprint'), $('leg1'), scope, 'carbon_footprint_t_per_m', fund);
+    lines($('c-waci'), $('leg2'), scope, 'waci_t_per_revenue_m', fund);
+    coverage($('c-coverage'), fund);
+    sectors($('c-sectors'), fund);
+    top(fund);
+  }
+  dq();
+  $('gen').textContent = 'Generated ' + D.generated + ' by src/pipeline.py from synthetic data.';
+  draw();
+})();
+</script>
+</body>
+</html>
