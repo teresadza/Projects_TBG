@@ -1,0 +1,8 @@
+asset,label,role,expected_return,income_yield
+cash,Cash,income,0.04,0.04
+nz_bonds,NZ bonds,income,0.048,0.045
+global_bonds,Global bonds (hedged),income,0.049,0.038
+aus_nz_equities,Australasian equities,growth,0.082,0.035
+global_equities,Global equities,growth,0.086,0.018
+listed_property,Listed property,income,0.074,0.048
+private_equity,Private equity,growth,0.105,0.005

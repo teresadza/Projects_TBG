@@ -1,0 +1,8 @@
+asset,weight
+cash,0.05
+nz_bonds,0.15
+global_bonds,0.2
+aus_nz_equities,0.15
+global_equities,0.3
+listed_property,0.05
+private_equity,0.1

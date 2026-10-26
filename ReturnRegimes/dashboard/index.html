@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Return Regimes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
+<style>
+:root {
+  --font-anthropic-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-anthropic-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --color-bg: #f7f7f5; --color-panel: #ffffff; --color-fg: #1f2328; --color-fg-muted: #626a73;
+  --color-border-line: #e2e3e0; --color-ok: #1a7f4b; --color-warn: #a86400; --color-bad: #c0362c;
+  --series-1: #2f5fb3; --series-2: #c46a1b; --series-3: #6b4fa3; --series-4: #2a8a8a;
+  --series-5: #8a6d1f; --series-6: #b3477a; --series-7: #4f7a2a; --series-8: #5b6b7d;
+  --cds-chart-grid: #ececea; --cds-chart-axis: #b9bcb7; --cds-chart-reference: #a3a7a1; --cds-chart-muted: #9aa0a6;
+  --cds-surface-popover: #ffffff; --cds-border: #d9dad6; --cds-text-secondary: #626a73;
+  --cds-shadow-popover: 0 4px 16px rgba(20, 24, 30, .12);
+  --cds-radius: 8px; --cds-font-weight-medium: 600;
+  --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 16px; --cds-font-size-title: 30px;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 16px; --cds-gap-lg: 24px; --cds-gap-xl: 32px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 16px; --cds-pad-xl: 24px;
+  --cds-dur-slow: 300ms; --cds-ease-out: cubic-bezier(.2, .7, .2, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #15171a; --color-panel: #1d2024; --color-fg: #e8e9ea; --color-fg-muted: #a0a6ad;
+    --color-border-line: #30343a; --color-ok: #4cc283; --color-warn: #e0a347; --color-bad: #f07167;
+    --series-1: #7ea6f0; --series-2: #f0a35e; --series-3: #b39ae6; --series-4: #5fc4c4;
+    --series-5: #d9b85c; --series-6: #e889b5; --series-7: #9ccf6b; --series-8: #9fb0c4;
+    --cds-chart-grid: #26292e; --cds-chart-axis: #4a4f56; --cds-chart-reference: #5c626a; --cds-chart-muted: #7d848c;
+    --cds-surface-popover: #24282d; --cds-border: #3a3f46; --cds-text-secondary: #a0a6ad;
+    --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: 14px; }
+#dash-root { max-width: 1280px; margin-inline: auto; padding-block: 24px 40px; padding-left: max(16px, 3vw); padding-right: max(16px, 3vw); }
+.dash-skeleton { color: transparent; background: var(--cds-chart-grid); border-radius: 4px; }
+.site-foot { margin-top: 24px; font-size: 12px; color: var(--color-fg-muted); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<script>window.DASH_PARAMS = {"asset": "S&P 500", "comp": "MSCI World"};</script>
+<script src="dash-shim.js"></script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+.rr { display: grid; gap: var(--cds-gap-lg); font-family: var(--font-anthropic-sans); }
+.rr h1 { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); }
+.rr-take { margin: 6px 0 0; max-width: 78ch; line-height: 1.55; }
+.rr-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: end; margin-top: var(--cds-gap-sm); }
+.rr-controls label { display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rr-controls select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); min-width: 12rem; }
+.rr-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
+.rr-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.rr-card h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.rr-card .note { margin: 4px 0 var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); max-width: 85ch; line-height: 1.45; }
+.rr-tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rr-tile .big { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); line-height: 1.15; font-variant-numeric: tabular-nums; }
+.rr-tile .calc { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.rr-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); }
+.rr-wide { grid-column: 1 / -1; }
+.rr-chart { position: relative; }
+.rr-chart svg { display: block; overflow: visible; }
+.rr-chart .tick text, .rr-chart .lab { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+.rr-chart .grid line { stroke: var(--cds-chart-grid); }
+.rr-chart .domain { stroke: var(--cds-chart-axis); }
+.rr-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-sm); }
+.rr-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.rr-legend i { display: inline-block; width: 14px; height: 0; border-top: 2px solid currentColor; }
+.rr-legend i.dash { border-top-style: dashed; }
+.rr-legend i.box { width: 10px; height: 10px; border: 0; border-radius: 2px; }
+.rr-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: 4px 8px; font-size: var(--cds-font-size-caption); white-space: nowrap; font-variant-numeric: tabular-nums; z-index: 2; }
+.rr-tip .h { color: var(--cds-text-secondary); }
+.rr-tablewrap { overflow-x: auto; }
+.rr table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.rr th { text-align: right; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 5px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.rr td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.rr .l { text-align: left; }
+.rr .pos { color: var(--color-ok); } .rr .neg { color: var(--color-bad); }
+.rr ol { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; line-height: 1.5; max-width: 85ch; }
+</style>
+
+<div class="rr">
+  <header>
+    <h1>Return regimes</h1>
+    <p class="rr-take" id="take"></p>
+    <div class="rr-controls">
+      <label for="rr-asset">Index <select id="rr-asset"></select></label>
+      <label for="rr-comp">Compared to <select id="rr-comp"></select></label>
+    </div>
+  </header>
+
+  <section class="rr-tiles" id="tiles"></section>
+
+  <div class="rr-grid">
+    <section class="rr-card rr-wide" id="growth">
+      <h2>Growth of $1: actual and fitted trend</h2>
+      <p class="note">Log scale. Shaded bands are the fitted segments, green where the index rose and red where it fell. The strip along the top marks the reference bear markets (S&P 500 peak to trough), so you can see where the fitted breakpoints land.</p>
+      <div class="rr-legend" id="leg-growth"></div>
+      <div class="rr-chart" id="c-growth" style="min-height:320px"></div>
+    </section>
+    <section class="rr-card" id="riskreturn">
+      <h2>Return vs volatility by segment</h2>
+      <p class="note">Compound annualised return against annualised volatility. Segments shorter than 12 months are left out, because annualising a few months exaggerates them.</p>
+      <div class="rr-legend" id="leg-scatter"></div>
+      <div class="rr-chart" id="c-scatter" style="min-height:270px"></div>
+    </section>
+    <section class="rr-card" id="excess">
+      <h2>Excess total return by segment</h2>
+      <p class="note">Index total return minus the comparison's total return over the same months. Above zero means the index did better.</p>
+      <div class="rr-chart" id="c-excess" style="min-height:270px"></div>
+    </section>
+  </div>
+
+  <section class="rr-card" id="segments">
+    <h2>Segment detail</h2>
+    <p class="note" id="seg-note"></p>
+    <div class="rr-tablewrap"><table id="t-seg"><thead><tr>
+      <th>#</th><th class="l">Start</th><th class="l">End</th><th>Months</th><th>Total return</th><th>Annualised</th><th>Volatility</th><th>Max drawdown</th>
+      <th id="th-ct">Comparison total</th><th>Excess total</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="rr-card" id="detection">
+    <h2>Do the breakpoints find the bear markets?</h2>
+    <p class="note" id="det-note">For each peak and trough of the reference bear markets (dot-com, global financial crisis, COVID, 2022), the distance in months to the nearest fitted breakpoint.</p>
+    <div class="rr-tablewrap"><table id="t-det"><thead><tr>
+      <th class="l">Index</th><th>Reference dates</th><th>Breakpoints found</th><th>Within 3 months</th><th>Median distance (months)</th><th>Trend fit R²</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="rr-card" id="method">
+    <h2>How the numbers are worked out</h2>
+    <ol>
+      <li><b>Trend fit.</b> Take the log of growth of $1, so a 20% fall counts the same at any point in history. Start with one straight line from the first month to the last. Add a breakpoint at the month furthest from the fit, refit straight lines between breakpoints, and repeat until R² reaches 0.99 or there are 15 segments.</li>
+      <li><b>Segment months.</b> A segment covers the months after its start breakpoint up to and including its end breakpoint, so each month belongs to exactly one segment.</li>
+      <li><b>Total return</b> = level at end ÷ level at start − 1. <b>Annualised return</b> = (1 + total)^(12 ÷ months) − 1, shown only for segments of 12 months or more. <span id="ex-ann"></span></li>
+      <li><b>Volatility</b> = standard deviation of the segment's monthly returns × √12. <b>Max drawdown</b> = deepest fall from a peak within the segment.</li>
+      <li><b>Comparison</b> uses exactly the same months for the other index, so excess total return compares like with like.</li>
+    </ol>
+  </section>
+</div>
+
+<script>
+(function () {
+  const pct = d3.format('.1%'), spct = d3.format('+.1%'), f2 = d3.format('.2f'), f3 = d3.format('.3f');
+  const parse = d3.utcParse('%Y-%m-%d'), ym = d3.utcFormat('%b %Y');
+  const $ = (id) => document.getElementById(id);
+  const num = (v) => (v === '' || v == null ? null : +v);
+  const clean = (g) => g.attr('font-size', null).attr('font-family', null);
+  const selA = $('rr-asset'), selC = $('rr-comp');
+  selA.onchange = () => {
+    const p = dash.params(); let comp = p.comp;
+    if (comp === selA.value) comp = [...selC.options].map((o) => o.value).find((v) => v !== selA.value) || [...selA.options].map((o) => o.value).find((v) => v !== selA.value);
+    dash.setParams({ asset: selA.value, comp });
+  };
+  selC.onchange = () => dash.setParams({ comp: selC.value });
+
+  function tip(el) { const t = document.createElement('div'); t.className = 'rr-tip'; t.hidden = true; el.appendChild(t); return t; }
+  function show(t, el, x, y, head, lines) {
+    t.replaceChildren(); const h = document.createElement('div'); h.className = 'h'; h.textContent = head; t.appendChild(h);
+    for (const l of lines) { const d = document.createElement('div'); d.textContent = l; t.appendChild(d); }
+    t.hidden = false; let left = x + 12; if (left + t.offsetWidth > el.clientWidth) left = x - t.offsetWidth - 12;
+    t.style.left = Math.max(0, left) + 'px'; t.style.top = Math.max(0, y - t.offsetHeight - 8) + 'px';
+  }
+  function legend(el, items) {
+    el.replaceChildren();
+    for (const [cls, color, text, op] of items) {
+      const s = document.createElement('span'); const i = document.createElement('i'); i.className = cls; i.style.color = color;
+      if (cls === 'box') { i.style.background = color; i.style.opacity = op || 1; }
+      s.append(i, document.createTextNode(text)); el.appendChild(s);
+    }
+  }
+
+  let truthLabel = 'Reference bear market';
+  function growth(el, rows, segs, truth, asset) {
+    el.replaceChildren();
+    const W = el.clientWidth, H = 320, m = { t: 26, r: 12, b: 26, l: 44 };
+    const pts = rows.map((r) => ({ d: parse(r.date), a: +r.cumret, f: +r.y_hat }));
+    const x = d3.scaleUtc(d3.extent(pts, (p) => p.d), [m.l, W - m.r]);
+    const y = d3.scaleLog([d3.min(pts, (p) => Math.min(p.a, p.f)) * 0.92, d3.max(pts, (p) => Math.max(p.a, p.f)) * 1.08], [H - m.b, m.t]);
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const ticks = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8].filter((v) => v >= y.domain()[0] && v <= y.domain()[1]);
+    svg.append('g').attr('class', 'grid').selectAll('line').data(ticks).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y);
+    let lastRight = -Infinity;
+    for (const s of segs) {
+      const x0 = x(parse(s.start_date)), x1 = x(parse(s.end_date));
+      svg.append('rect').attr('x', x0).attr('y', m.t).attr('width', Math.max(0, x1 - x0)).attr('height', H - m.t - m.b)
+        .attr('fill', +s.asset_total_return >= 0 ? 'var(--color-ok)' : 'var(--color-bad)').attr('fill-opacity', 0.08);
+      svg.append('line').attr('x1', x0).attr('x2', x0).attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '2 3');
+      const cx = (x0 + x1) / 2;
+      if (x1 - x0 >= 16 && cx - 8 > lastRight) { svg.append('text').attr('class', 'lab').attr('x', cx).attr('y', m.t + 14).attr('text-anchor', 'middle').text(s.segment); lastRight = cx + 8; }
+    }
+    // true bear strip
+    const step = (x.range()[1] - x.range()[0]) / truth.length;
+    truth.forEach((t) => { if (t.regime === 'bear') svg.append('rect').attr('x', x(parse(t.date)) - step).attr('y', m.t - 18).attr('width', step + 0.5).attr('height', 8).attr('fill', 'var(--color-bad)'); });
+    if (truth.length) svg.append('text').attr('class', 'lab').attr('x', m.l - 4).attr('y', m.t - 11).attr('text-anchor', 'end').text('Bear');
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor(W / 90))).tickSizeOuter(0)).call(clean);
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).tickValues(ticks).tickFormat((v) => '$' + d3.format('~g')(v)).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    const line = (k) => d3.line().x((p) => x(p.d)).y((p) => y(p[k]));
+    svg.append('path').datum(pts).attr('fill', 'none').attr('stroke', dash.colors[1]).attr('stroke-width', 1.5).attr('stroke-dasharray', '5 3').attr('d', line('f'));
+    svg.append('path').datum(pts).attr('fill', 'none').attr('stroke', dash.colors[0]).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('d', line('a'));
+    const t = tip(el), bis = d3.bisector((p) => p.d).center;
+    const dot = svg.append('circle').attr('r', 4).attr('fill', dash.colors[0]).attr('display', 'none');
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove', (ev) => { const [mx, my] = d3.pointer(ev); const p = pts[bis(pts, x.invert(mx))];
+        dot.attr('display', null).attr('cx', x(p.d)).attr('cy', y(p.a));
+        show(t, el, x(p.d), my, ym(p.d), ['Actual $' + f2(p.a), 'Trend $' + f2(p.f)]); })
+      .on('pointerleave', () => { t.hidden = true; dot.attr('display', 'none'); });
+    legend($('leg-growth'), [['', dash.colors[0], asset], ['dash', dash.colors[1], 'Fitted trend'], ['box', 'var(--color-ok)', 'Rising segment', .35], ['box', 'var(--color-bad)', 'Falling segment', .35], ['box', 'var(--color-bad)', truthLabel]]);
+  }
+
+  function scatter(el, segs, compName) {
+    el.replaceChildren();
+    const S = segs.filter((s) => num(s.asset_annualised_return) != null);
+    const W = el.clientWidth, H = 270, m = { t: 10, r: 14, b: 38, l: 50 };
+    const xs = S.flatMap((s) => [+s.asset_volatility, +s.comp_volatility]), ys = S.flatMap((s) => [+s.asset_annualised_return, +s.comp_annualised_return]);
+    const x = d3.scaleLinear([0, d3.max(xs) * 1.08], [m.l, W - m.r]).nice();
+    const y = d3.scaleLinear([Math.min(0, d3.min(ys)), Math.max(0, d3.max(ys))], [H - m.b, m.t]).nice();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(5)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y);
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-reference)');
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(5).tickFormat(d3.format('.0%')).tickSizeOuter(0)).call(clean);
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('.0%')).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    svg.append('text').attr('class', 'lab').attr('x', W - m.r).attr('y', H - 4).attr('text-anchor', 'end').text('Volatility (ann.)');
+    svg.append('g').selectAll('line').data(S).join('line').attr('x1', (s) => x(+s.asset_volatility)).attr('y1', (s) => y(+s.asset_annualised_return))
+      .attr('x2', (s) => x(+s.comp_volatility)).attr('y2', (s) => y(+s.comp_annualised_return)).attr('stroke', 'var(--cds-chart-muted)');
+    svg.append('g').selectAll('circle').data(S).join('circle').attr('cx', (s) => x(+s.comp_volatility)).attr('cy', (s) => y(+s.comp_annualised_return)).attr('r', 3.5)
+      .attr('fill', 'var(--color-panel)').attr('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 1.5);
+    const t = tip(el);
+    svg.append('g').selectAll('circle').data(S).join('circle').attr('cx', (s) => x(+s.asset_volatility)).attr('cy', (s) => y(+s.asset_annualised_return)).attr('r', 5)
+      .attr('fill', dash.colors[0]).attr('stroke', 'var(--color-panel)')
+      .on('pointerenter', (ev, s) => show(t, el, x(+s.asset_volatility), y(+s.asset_annualised_return), 'Segment ' + s.segment + ': ' + ym(parse(s.start_date)) + ' to ' + ym(parse(s.end_date)),
+        ['Index ' + pct(+s.asset_annualised_return) + ' a year, ' + pct(+s.asset_volatility) + ' vol', compName + ' ' + pct(+s.comp_annualised_return) + ' a year, ' + pct(+s.comp_volatility) + ' vol']))
+      .on('pointerleave', () => { t.hidden = true; });
+  }
+
+  function excess(el, segs) {
+    el.replaceChildren();
+    const W = el.clientWidth, H = 270, m = { t: 10, r: 8, b: 38, l: 50 };
+    const x = d3.scaleBand(segs.map((s) => String(s.segment)), [m.l, W - m.r]).padding(0.25);
+    const ex = segs.map((s) => +s.excess_total_return);
+    const y = d3.scaleLinear([Math.min(0, d3.min(ex)), Math.max(0, d3.max(ex))], [H - m.b, m.t]).nice();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(5)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y);
+    const bw = Math.min(32, x.bandwidth()), off = (x.bandwidth() - bw) / 2, t = tip(el);
+    svg.append('g').selectAll('rect').data(segs).join('rect').attr('x', (s) => x(String(s.segment)) + off).attr('width', bw)
+      .attr('y', (s) => y(Math.max(0, +s.excess_total_return))).attr('height', (s) => Math.abs(y(+s.excess_total_return) - y(0))).attr('rx', 3)
+      .attr('fill', (s) => (+s.excess_total_return >= 0 ? 'var(--color-ok)' : 'var(--color-bad)'))
+      .on('pointerenter', (ev, s) => show(t, el, x(String(s.segment)) + x.bandwidth() / 2, y(Math.max(0, +s.excess_total_return)), 'Segment ' + s.segment + ', ' + s.months + ' months',
+        ['Excess ' + spct(+s.excess_total_return) + ' (' + pct(+s.asset_total_return) + ' − ' + pct(+s.comp_total_return) + ')']))
+      .on('pointerleave', () => { t.hidden = true; });
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+    const every = x.bandwidth() < 18 ? 2 : 1;
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(x.domain().filter((d, i) => i % every === 0)).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('+.0%')).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    svg.append('text').attr('class', 'lab').attr('x', W - m.r).attr('y', H - 4).attr('text-anchor', 'end').text('Segment');
+  }
+
+  function cell(tr, text, cls) { const td = document.createElement('td'); td.textContent = text; if (cls) td.className = cls; tr.appendChild(td); }
+
+  dash.onData(() => {
+    const M = dash.data('model_outputs'), SC = dash.data('segment_comparisons'), SU = dash.data('summary'), TR = dash.data('true_regimes'), DE = dash.data('detection');
+    if (M.status !== 'ok' || SC.status !== 'ok') return;
+    const MT = dash.data('meta'); if (MT.status === 'ok' && MT.data[0]) truthLabel = MT.data[0].truth_label.replace(/s$/, '');
+    const assets = [...new Set(M.data.map((r) => r.asset))];
+    const p = dash.params();
+    const asset = assets.includes(p.asset) ? p.asset : assets[0];
+    const comps = assets.filter((a) => a !== asset);
+    const comp = comps.includes(p.comp) ? p.comp : comps[0];
+    selA.replaceChildren(...assets.map((a) => new Option(a, a))); selA.value = asset;
+    selC.replaceChildren(...comps.map((a) => new Option(a, a))); selC.value = comp;
+
+    const rows = M.data.filter((r) => r.asset === asset);
+    const segs = SC.data.filter((s) => s.asset === asset && s.compared_to === comp).sort((a, b) => a.segment - b.segment);
+    const su = SU.data.find((s) => s.asset === asset);
+    const beat = segs.filter((s) => +s.excess_total_return > 0).length;
+    const first = rows[0].date, last = rows[rows.length - 1].date;
+
+    $('take').textContent = asset + ' grew $1 to $' + f2(+su.growth) + ' from ' + ym(parse(first)) + ' to ' + ym(parse(last)) + ', ' + pct(+su.cagr) +
+      ' a year compound. The trend fit splits it into ' + su.segments + ' segments; it beat ' + comp + ' in ' + beat + ' of them.';
+
+    const tiles = [
+      ['Growth of $1', '$' + f2(+su.growth), ym(parse(first)) + ' to ' + ym(parse(last)) + ', ' + su.months + ' months'],
+      ['Annualised return, compound', pct(+su.cagr), f2(+su.growth) + '^(12/' + su.months + ') − 1'],
+      ['Segments ahead of ' + comp, beat + ' of ' + segs.length, 'Excess total return above zero'],
+      ['Trend fit R² (log)', f3(+su.r2), 'Target 0.99, maximum 15 segments'],
+    ];
+    const tEl = $('tiles'); tEl.replaceChildren();
+    for (const [l, v, c] of tiles) { const d = document.createElement('div'); d.className = 'rr-card rr-tile';
+      d.innerHTML = '<div class="lbl"></div><div class="big"></div><div class="calc"></div>';
+      d.children[0].textContent = l; d.children[1].textContent = v; d.children[2].textContent = c; tEl.appendChild(d); }
+
+    growth($('c-growth'), rows, segs, TR.status === 'ok' ? TR.data : [], asset);
+    legend($('leg-scatter'), [['box', dash.colors[0], asset], ['box', 'var(--cds-chart-muted)', comp]]);
+    scatter($('c-scatter'), segs, comp);
+    excess($('c-excess'), segs);
+
+    $('th-ct').textContent = comp + ' total';
+    $('seg-note').textContent = asset + ' against ' + comp + ' over the same months. Annualised figures are shown only for segments of 12 months or more.';
+    const tb = document.querySelector('#t-seg tbody'); tb.replaceChildren();
+    for (const s of segs) {
+      const tr = document.createElement('tr');
+      cell(tr, s.segment); cell(tr, ym(parse(s.start_date)), 'l'); cell(tr, ym(parse(s.end_date)), 'l'); cell(tr, s.months);
+      cell(tr, pct(+s.asset_total_return)); cell(tr, num(s.asset_annualised_return) == null ? 'n/a' : pct(+s.asset_annualised_return));
+      cell(tr, num(s.asset_volatility) == null ? 'n/a' : pct(+s.asset_volatility)); cell(tr, pct(+s.asset_max_drawdown));
+      cell(tr, pct(+s.comp_total_return)); cell(tr, spct(+s.excess_total_return), +s.excess_total_return >= 0 ? 'pos' : 'neg');
+      tb.appendChild(tr);
+    }
+    const ex = segs.find((s) => num(s.asset_annualised_return) != null);
+    if (ex) $('ex-ann').textContent = 'Example, segment ' + ex.segment + ': (1 + ' + pct(+ex.asset_total_return) + ')^(12 ÷ ' + ex.months + ') − 1 = ' + pct(+ex.asset_annualised_return) + '.';
+
+    if (DE.status === 'ok') {
+      const db = document.querySelector('#t-det tbody'); db.replaceChildren();
+      for (const d of DE.data) { const tr = document.createElement('tr'); const s2 = SU.data.find((s) => s.asset === d.asset);
+        cell(tr, d.asset, 'l'); cell(tr, d.true_changes); cell(tr, d.breakpoints); cell(tr, d.within_3_months); cell(tr, d3.format('.0f')(+d.median_distance_months)); cell(tr, f3(+s2.r2)); db.appendChild(tr); }
+    } else { $('detection').hidden = true; }
+  });
+})();
+</script>
+
+<p class="site-foot">Monthly total return indices, Jan 2000 to Mar 2025. Built by src/regimes.py.</p>
+</div>
+</body>
+</html>

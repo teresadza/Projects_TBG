@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Allocation Frontier</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
+<style>
+:root {
+  --font-anthropic-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-anthropic-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --color-bg: #f7f7f5; --color-panel: #ffffff; --color-fg: #1f2328; --color-fg-muted: #626a73;
+  --color-border-line: #e2e3e0; --color-ok: #1a7f4b; --color-warn: #a86400; --color-bad: #c0362c;
+  --series-1: #2f5fb3; --series-2: #c46a1b; --series-3: #6b4fa3; --series-4: #2a8a8a;
+  --series-5: #8a6d1f; --series-6: #b3477a; --series-7: #4f7a2a; --series-8: #5b6b7d;
+  --cds-chart-grid: #ececea; --cds-chart-axis: #b9bcb7; --cds-chart-reference: #a3a7a1; --cds-chart-muted: #9aa0a6;
+  --cds-surface-popover: #ffffff; --cds-border: #d9dad6; --cds-text-secondary: #626a73;
+  --cds-shadow-popover: 0 4px 16px rgba(20, 24, 30, .12);
+  --cds-radius: 8px; --cds-font-weight-medium: 600;
+  --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 16px; --cds-font-size-title: 30px;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 16px; --cds-gap-lg: 24px; --cds-gap-xl: 32px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 16px; --cds-pad-xl: 24px;
+  --cds-dur-slow: 300ms; --cds-ease-out: cubic-bezier(.2, .7, .2, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #15171a; --color-panel: #1d2024; --color-fg: #e8e9ea; --color-fg-muted: #a0a6ad;
+    --color-border-line: #30343a; --color-ok: #4cc283; --color-warn: #e0a347; --color-bad: #f07167;
+    --series-1: #7ea6f0; --series-2: #f0a35e; --series-3: #b39ae6; --series-4: #5fc4c4;
+    --series-5: #d9b85c; --series-6: #e889b5; --series-7: #9ccf6b; --series-8: #9fb0c4;
+    --cds-chart-grid: #26292e; --cds-chart-axis: #4a4f56; --cds-chart-reference: #5c626a; --cds-chart-muted: #7d848c;
+    --cds-surface-popover: #24282d; --cds-border: #3a3f46; --cds-text-secondary: #a0a6ad;
+    --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: 14px; }
+#dash-root { max-width: 1280px; margin-inline: auto; padding-block: 24px 40px; padding-left: max(16px, 3vw); padding-right: max(16px, 3vw); }
+.dash-skeleton { color: transparent; background: var(--cds-chart-grid); border-radius: 4px; }
+.site-foot { margin-top: 24px; font-size: 12px; color: var(--color-fg-muted); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<script>window.DASH_PARAMS = {"pick": "max_prob_prev", "scenario": "as_reported"};</script>
+<script src="dash-shim.js"></script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+.mf { display: grid; gap: var(--cds-gap-lg); font-family: var(--font-anthropic-sans); }
+.mf-head { display: grid; gap: var(--cds-gap-sm); }
+.mf-head h1 { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); }
+.mf-take { margin: 0; max-width: 78ch; font-size: var(--cds-font-size-body); line-height: 1.55; }
+.mf-sec { display: grid; gap: var(--cds-gap-md); }
+.mf-sec > h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.mf-sec > .note { margin: calc(-1 * var(--cds-gap-sm)) 0 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); max-width: 85ch; }
+.mf-cards { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+.mf-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.mf-card h3 { margin: 0 0 var(--cds-gap-xs); font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.mf-card .note { margin: 0 0 var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); max-width: 80ch; }
+.mf-pcard { display: grid; gap: var(--cds-gap-sm); cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.mf-pcard[aria-pressed="true"] { outline: 2px solid var(--mf-sel); outline-offset: -1px; }
+.mf-pcard .top { display: flex; align-items: center; gap: var(--cds-gap-sm); font-weight: var(--cds-font-weight-medium); }
+.mf-pcard .big { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-weight: 400; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.mf-pcard .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mf-kv { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--cds-gap-md); font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+.mf-kv dt { color: var(--color-fg-muted); }
+.mf-kv dd { margin: 0; text-align: right; }
+.mf-swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.mf-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: end; }
+.mf-controls label { display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mf-controls select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); max-width: 100%; }
+.mf-grid2 { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); }
+.mf-chart { position: relative; }
+.mf-chart svg { display: block; overflow: visible; }
+.mf-chart canvas { position: absolute; left: 0; top: 0; }
+.mf-chart .tick text, .mf-chart .lab { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+.mf-chart .grid line { stroke: var(--cds-chart-grid); }
+.mf-chart .domain { stroke: var(--cds-chart-axis); }
+.mf-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-sm); align-items: center; }
+.mf-legend span { display: inline-flex; align-items: center; gap: var(--cds-gap-xs); }
+.mf-legend svg { display: block; }
+.mf-ramp { display: inline-block; width: 64px; height: 8px; border-radius: 4px; }
+.mf-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 3; }
+.mf-tip .h { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.mf-fail { display: flex; align-items: center; justify-content: center; gap: var(--cds-gap-xs); min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.mf-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.mf-tablewrap { overflow-x: auto; }
+.mf-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+.mf-table th { text-align: right; font-weight: var(--cds-font-weight-medium); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.mf-table td { text-align: right; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.mf-table .l { text-align: left; }
+.mf-table tbody tr.click { cursor: pointer; }
+.mf-table tbody tr.click:hover td { background: var(--cds-chart-grid); }
+.mf-table tbody tr.sel td { background: var(--cds-chart-grid); font-weight: var(--cds-font-weight-medium); }
+.mf-flag { color: var(--color-warn); }
+.mf-method { margin: 0; padding-left: 1.2em; display: grid; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-body); line-height: 1.5; max-width: 85ch; }
+.mf-delta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="mf">
+  <header class="mf-head" id="overview">
+    <h1>Allocation frontier</h1>
+    <p class="mf-take" id="takeaway">
+      The current portfolio expects <b data-source="port_calc" data-field="ret" data-where="id=current" class="dash-skeleton">—</b> a year at
+      <b data-source="port_calc" data-field="risk" data-where="id=current" class="dash-skeleton">—</b> risk, a
+      <b data-source="port_calc" data-field="prob" data-where="id=current" class="dash-skeleton">—</b> chance of beating the 7.5% hurdle in a given year.
+      The maximum probability portfolio raises that to
+      <b data-source="port_calc" data-field="prob" data-where="id=max_prob_prev" class="dash-skeleton">—</b>, but holds
+      <b data-source="port_calc" data-field="w_private_equity" data-where="id=max_prob_prev" class="dash-skeleton">—</b> in private equity and gives up income
+      (<span data-source="port_calc" data-field="income" data-where="id=max_prob_prev" class="dash-skeleton">—</span> against
+      <span data-source="port_calc" data-field="income" data-where="id=current" class="dash-skeleton">—</span>).
+    </p>
+    <div class="mf-controls">
+      <label for="mf-scn">Private equity
+        <select id="mf-scn">
+          <option value="as_reported">As reported</option>
+          <option value="equity_like">Equity-like (correlation 0.7)</option>
+        </select>
+      </label>
+    </div>
+    <p class="mf-take" id="scn-note"></p>
+  </header>
+
+  <section class="mf-sec" id="options">
+    <h2>Three portfolio options</h2>
+    <p class="note">Click a card to look at that portfolio in detail below. Probability assumes normally distributed annual returns.</p>
+    <div class="mf-cards" id="named-cards" data-source="port_calc"></div>
+  </section>
+
+  <section class="mf-sec" id="frontier">
+    <h2>Simulated portfolios and the frontier</h2>
+    <p class="note"><span id="sim-n" data-source="simulated" class="dash-skeleton">—</span> random weightings of the seven assets, cash capped at 5%. Each dot is one portfolio, shaded by its probability of beating the hurdle. The line joins the highest probability portfolio in each of 15 risk bands. Click any marked portfolio to select it.</p>
+    <div class="mf-card">
+      <div class="mf-legend" id="frontier-legend"></div>
+      <div class="mf-chart dash-skeleton" id="frontier-chart" data-source="simulated portfolios" style="min-height: 420px"></div>
+    </div>
+  </section>
+
+  <section class="mf-sec" id="selected">
+    <h2 id="sel-title">Selected portfolio</h2>
+    <div class="mf-controls">
+      <label for="mf-pick">Portfolio
+        <select id="mf-pick" data-source="portfolios"></select>
+      </label>
+    </div>
+    <div class="mf-cards" id="sel-tiles" data-source="port_calc"></div>
+    <div class="mf-grid2">
+      <div class="mf-card" id="weights">
+        <h3>Asset weights</h3>
+        <p class="note">Selected portfolio against the current portfolio.</p>
+        <div class="mf-legend" id="weights-legend"></div>
+        <div class="mf-chart dash-skeleton" id="weights-chart" data-source="portfolios assets" style="min-height: 300px"></div>
+      </div>
+      <div class="mf-card" id="drawdown">
+        <h3>Historical drawdown</h3>
+        <p class="note">Fall from the previous peak, using monthly index returns from <span id="span-dd">—</span> with weights rebalanced monthly. Shown for the three named portfolios. This is history, not the forward-looking assumption.</p>
+        <div class="mf-legend" id="dd-legend"></div>
+        <div class="mf-chart dash-skeleton" id="dd-chart" data-source="history" style="min-height: 300px"></div>
+      </div>
+    </div>
+    <div class="mf-card" id="worst">
+      <h3>Three worst drawdowns</h3>
+      <p class="note">Peak is the last month before the fall. Months are counted from the peak.</p>
+      <div class="mf-tablewrap">
+        <table class="mf-table" id="dd-table" data-source="drawdowns" data-row-key="id,rank">
+          <thead><tr>
+            <th class="l" data-field="id">Portfolio</th>
+            <th data-field="rank">Rank</th>
+            <th class="l" data-field="start">Peak</th>
+            <th class="l" data-field="valley">Trough</th>
+            <th class="l" data-field="recovered">Recovered</th>
+            <th data-field="depth">Fall</th>
+            <th data-field="months_to_valley">Months to trough</th>
+            <th data-field="months_to_recover">Months to recover</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="mf-sec" id="bands">
+    <h2>Frontier by risk band</h2>
+    <p class="note">For each risk band, the portfolio with the highest probability and the one with the highest income. Click a row to select it. Private equity above 40% is flagged.</p>
+    <div class="mf-card">
+      <div class="mf-tablewrap">
+        <table class="mf-table" id="band-table" data-source="port_calc" data-row-key="id">
+          <thead><tr>
+            <th data-field="band">Band</th>
+            <th data-field="bucket_low">Risk from</th>
+            <th data-field="bucket_high">Risk to</th>
+            <th class="l" data-field="group_label">Best for</th>
+            <th data-field="ret">Return</th>
+            <th data-field="risk">Risk</th>
+            <th data-field="income">Income</th>
+            <th data-field="prob">P(&gt; 7.5%)</th>
+            <th data-field="growth">Growth assets</th>
+            <th data-field="w_private_equity">Private equity</th>
+            <th data-field="w_listed_property">Property</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="mf-sec" id="assumptions">
+    <h2>Asset assumptions</h2>
+    <p class="note">Expected returns and yields are capital market assumptions. Volatility and correlation come from monthly index returns over <span id="span-as">—</span>; the raw returns are not published.</p>
+    <div class="mf-card">
+      <div class="mf-tablewrap">
+        <table class="mf-table" id="asset-table" data-source="assets" data-row-key="asset">
+          <thead><tr>
+            <th class="l" data-field="label">Asset</th>
+            <th class="l" data-field="role">Role</th>
+            <th data-field="cma_return">CMA return</th>
+            <th data-field="income_yield">Income yield</th>
+            <th data-field="hist_return">Historical return</th>
+            <th data-field="hist_vol">Volatility</th>
+            <th data-field="corr_aus_eq">Corr. Australasian equities</th>
+            <th data-field="corr_global_eq">Corr. global equities</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="mf-sec" id="method">
+    <h2>How the numbers are worked out</h2>
+    <div class="mf-card">
+      <ol class="mf-method">
+        <li><b>Expected return</b> = sum of weight × CMA return. <b>Risk</b> = √(w′ Σ w) × √12, where Σ is the covariance of monthly historical returns.</li>
+        <li><b>Probability of beating the hurdle</b> = Φ((return − 7.5%) ÷ risk), the normal distribution. <span id="ex-prob" data-source="port_calc" class="dash-skeleton">—</span></li>
+        <li><b>Negative year, 1 in N</b> = 1 ÷ Φ(−return ÷ risk). <span id="ex-neg" data-source="port_calc" class="dash-skeleton">—</span></li>
+        <li><b>Risk bands</b> split the range from lowest to highest simulated risk into 15 equal bands, including the riskiest portfolio.</li>
+        <li><b>Random seed 42</b> makes the 25,000 portfolios in each setting repeatable. Cash is capped at 5%. The three named portfolios are the current allocation and two alternatives to it.</li>
+        <li class="mf-flag"><b>Private equity proxy.</b> <span id="ex-pe" data-source="assets" class="dash-skeleton">—</span> Its returns are not smoothed (lag-1 autocorrelation about 0.1), but they move independently of listed equities, which real private equity does not. The optimiser therefore treats it as a free diversifier. The equity-like setting keeps the proxy's return and volatility and rebuilds it to move with global equities: new return = mean + volatility × (0.7 × z<sub>global equities</sub> + √(1 − 0.7²) × z<sub>own</sub>), where z is a standardised return.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<script>
+dash.calc('port_calc', {
+  inputs: ['portfolios'],
+  title: 'Portfolio statistics',
+  description: 'Each portfolio as numbers, with negative year frequency = 1 / P(return < 0) and differences from the current portfolio.',
+  fn: (portfolios) => {
+    const num = (r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, ['scenario', 'id', 'group', 'label'].includes(k) ? v : (v === '' ? null : Number(v))]));
+    const rows = portfolios.map(num);
+    const curOf = {};
+    rows.forEach((r) => { if (r.id === 'current') curOf[r.scenario] = r; });
+    return rows.map((r) => ({
+      ...r,
+      years_per_negative: 1 / r.p_neg,
+      band: r.bucket == null ? null : r.bucket + 1,
+      group_label: { max_prob: 'Probability', max_income: 'Income', named: 'Named option' }[r.group],
+      z: (r.ret - 0.075) / r.risk,
+      d_ret: r.ret - curOf[r.scenario].ret, d_risk: r.risk - curOf[r.scenario].risk,
+      d_income: r.income - curOf[r.scenario].income, d_prob: r.prob - curOf[r.scenario].prob,
+    }));
+  },
+});
+
+(function () {
+  const pct = d3.format('.1%'), pct0 = d3.format('.0%'), f1 = d3.format('.1f');
+  const pts = (v) => (v >= 0 ? '+' : '−') + f1(Math.abs(v * 100)) + ' pts';
+  const ym = d3.utcFormat('%b %Y'), parse = d3.utcParse('%Y-%m-%d');
+  const enc = encodeURIComponent;
+  const $ = (id) => document.getElementById(id);
+  const NAMED = ['current', 'hi_income', 'max_prob_prev'];
+  const GROUP_LABEL = { max_prob: 'Probability', max_income: 'Income', named: 'Named option' };
+  const DEFAULT_PICK = 'max_prob_prev';
+
+  function resolveColor(c) {
+    const el = document.createElement('span'); el.style.color = c; el.style.display = 'none';
+    document.body.appendChild(el); const v = getComputedStyle(el).color; el.remove(); return v;
+  }
+  const colorOf = (id) => ({ current: 'var(--color-fg)', hi_income: dash.colors[2], max_prob_prev: dash.colors[1] }[id] || dash.colors[0]);
+
+  const sel = $('mf-pick');
+  sel.addEventListener('change', () => dash.setParams({ pick: sel.value }));
+  document.getElementById('mf-scn').addEventListener('change', (e) => dash.setParams({ scenario: e.target.value }));
+  const pickOf = (rows) => { const p = dash.params().pick; return rows.some((r) => r.id === p) ? p : DEFAULT_PICK; };
+  const choose = (id) => dash.setParams({ pick: id });
+
+  function fail(el) { el.classList.remove('dash-skeleton'); el.replaceChildren(); const d = document.createElement('div'); d.className = 'mf-fail'; d.textContent = 'Failed to load'; el.appendChild(d); }
+  function prep(el, ok, err) { el.replaceChildren(); el.classList.toggle('dash-skeleton', !ok && !err); if (err) fail(el); }
+  function tipBox(el) { const t = document.createElement('div'); t.className = 'mf-tip'; t.hidden = true; el.appendChild(t); return t; }
+  function showTip(tip, el, x, y, head, lines) {
+    tip.replaceChildren();
+    const h = document.createElement('div'); h.className = 'h'; h.textContent = head; tip.appendChild(h);
+    for (const l of lines) { const r = document.createElement('div'); r.textContent = l; tip.appendChild(r); }
+    tip.hidden = false;
+    const w = el.clientWidth, tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = x + 12; if (left + tw > w) left = x - tw - 12; if (left < 0) left = 0;
+    let top = y - th - 8; if (top < 0) top = y + 12;
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  const clean = (g) => g.attr('font-size', null).attr('font-family', null);
+  function legend(el, items) {
+    el.replaceChildren();
+    for (const it of items) {
+      const s = document.createElement('span');
+      if (it.ramp) { const r = document.createElement('i'); r.className = 'mf-ramp'; r.style.background = `linear-gradient(90deg, ${it.ramp[0]}, ${it.ramp[1]})`; s.appendChild(r); }
+      else {
+        const svg = d3.create('svg').attr('width', 14).attr('height', 14);
+        if (it.line) svg.append('line').attr('x1', 0).attr('x2', 14).attr('y1', 7).attr('y2', 7).attr('stroke', it.color).attr('stroke-width', 2).attr('stroke-dasharray', it.dash || null);
+        else svg.append('path').attr('transform', 'translate(7,7)').attr('d', d3.symbol(it.symbol || d3.symbolCircle, it.size || 50)()).attr('fill', it.color).attr('stroke', it.stroke || 'none');
+        s.appendChild(svg.node());
+      }
+      s.appendChild(document.createTextNode(it.text));
+      el.appendChild(s);
+    }
+  }
+  const SYM = { current: d3.symbolStar, hi_income: d3.symbolDiamond, max_prob_prev: d3.symbolTriangle };
+
+  // ---------- named cards ----------
+  function drawNamed(el, rows, pick) {
+    el.replaceChildren(); el.classList.remove('dash-skeleton');
+    for (const id of NAMED) {
+      const r = rows.find((x) => x.id === id); if (!r) continue;
+      const w = whereId(id);
+      const b = document.createElement('div'); b.setAttribute('role', 'button'); b.tabIndex = 0; b.className = 'mf-card mf-pcard';
+      b.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(id); } });
+      b.setAttribute('aria-pressed', String(pick === id)); b.style.setProperty('--mf-sel', colorOf(id));
+      b.addEventListener('click', () => choose(id));
+      const top = document.createElement('div'); top.className = 'top';
+      const sw = document.createElement('span'); sw.className = 'mf-swatch'; sw.style.background = colorOf(id);
+      top.append(sw, document.createTextNode(r.label));
+      const big = mark('div', 'big', 'port_calc', 'prob', w, pct(r.prob));
+      const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = 'chance of beating 7.5% in a year';
+      const dl = document.createElement('dl'); dl.className = 'mf-kv';
+      kv(dl, 'Expected return', 'ret', w, pct(r.ret));
+      kv(dl, 'Risk', 'risk', w, pct(r.risk));
+      kv(dl, 'Income yield', 'income', w, pct(r.income));
+      kv(dl, 'Negative year, 1 in', 'years_per_negative', w, f1(r.years_per_negative));
+      kv(dl, 'Growth assets', 'growth', w, pct0(r.growth));
+      kv(dl, 'Private equity', 'w_private_equity', w, pct0(r.w_private_equity));
+      b.append(top, big, sub, dl);
+      el.appendChild(b);
+    }
+  }
+  const whereId = (id) => 'id=' + enc(id);
+  function mark(tag, cls, src, field, where, text) {
+    const e = document.createElement(tag); if (cls) e.className = cls;
+    e.dataset.source = src; e.dataset.field = field; e.dataset.where = where; e.textContent = text; return e;
+  }
+  function kv(dl, label, field, where, text) {
+    const dt = document.createElement('dt'); dt.textContent = label;
+    dl.append(dt, mark('dd', '', 'port_calc', field, where, text));
+  }
+
+  // ---------- frontier ----------
+  function drawFrontier(el, sim, rows, pick) {
+    el.replaceChildren(); el.classList.remove('dash-skeleton');
+    const W = el.clientWidth, H = 420, m = { t: 12, r: 16, b: 40, l: 52 };
+    const risk = sim.map((s) => +s.risk), ret = sim.map((s) => +s.ret), prob = sim.map((s) => +s.prob);
+    const x = d3.scaleLinear([0, d3.max(risk) * 1.04], [m.l, W - m.r]).nice();
+    const y = d3.scaleLinear([Math.min(0.04, d3.min(ret)), d3.max(ret) * 1.03], [H - m.b, m.t]).nice();
+    const lo = resolveColor('var(--cds-chart-muted)'), hi = resolveColor(dash.colors[0]);
+    const pr = d3.extent(prob), ramp = d3.scaleLinear(pr, [0, 1]).clamp(true), ip = d3.interpolateRgb(lo, hi);
+
+    const dpr = window.devicePixelRatio || 1;
+    const cv = document.createElement('canvas'); cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    el.appendChild(cv);
+    const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+    const order = d3.range(sim.length).sort((a, b) => prob[a] - prob[b]);
+    ctx.globalAlpha = 0.55;
+    for (const i of order) { ctx.fillStyle = ip(ramp(prob[i])); ctx.fillRect(x(risk[i]) - 1, y(ret[i]) - 1, 2, 2); }
+
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H).style('position', 'relative');
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(6)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', (d) => y(d)).attr('y2', (d) => y(d)).attr('opacity', 0.6);
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor(W / 80))).tickFormat(d3.format('.0%')).tickSizeOuter(0)).call(clean);
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(d3.format('.0%')).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    svg.append('text').attr('class', 'lab').attr('x', W - m.r).attr('y', H - 6).attr('text-anchor', 'end').text('Risk (annualised volatility)');
+    svg.append('text').attr('class', 'lab').attr('transform', `translate(14,${m.t}) rotate(-90)`).attr('text-anchor', 'end').text('Expected return');
+
+    const hurdle = 0.075;
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(hurdle)).attr('y2', y(hurdle)).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '5 4');
+    svg.append('text').attr('class', 'lab').attr('x', W - m.r).attr('y', y(hurdle) + 14).attr('text-anchor', 'end').text('Hurdle 7.5%');
+
+    const mp = rows.filter((r) => r.group === 'max_prob').sort((a, b) => a.risk - b.risk);
+    const mi = rows.filter((r) => r.group === 'max_income').sort((a, b) => a.risk - b.risk);
+    svg.append('path').datum(mp).attr('fill', 'none').attr('stroke', dash.colors[0]).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('d', d3.line().x((r) => x(r.risk)).y((r) => y(r.ret)));
+    svg.append('path').datum(mi).attr('fill', 'none').attr('stroke', dash.colors[3]).attr('stroke-width', 1.5).attr('stroke-dasharray', '4 3').attr('d', d3.line().x((r) => x(r.risk)).y((r) => y(r.ret)));
+
+    const tip = tipBox(el);
+    const pts = [...mp.map((r) => ({ r, sym: d3.symbolCircle, size: 42, color: dash.colors[0] })),
+                 ...mi.map((r) => ({ r, sym: d3.symbolSquare, size: 34, color: dash.colors[3] })),
+                 ...NAMED.map((id) => rows.find((r) => r.id === id)).filter(Boolean).map((r) => ({ r, sym: SYM[r.id], size: 150, color: colorOf(r.id) }))];
+    const g = svg.append('g');
+    g.selectAll('path.pt').data(pts).join('path').attr('class', 'pt')
+      .attr('transform', (p) => `translate(${x(p.r.risk)},${y(p.r.ret)})`)
+      .attr('d', (p) => d3.symbol(p.sym, p.size)())
+      .attr('fill', (p) => p.color).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.2)
+      .style('cursor', 'pointer')
+      .on('click', (ev, p) => choose(p.r.id))
+      .on('pointerenter', (ev, p) => showTip(tip, el, x(p.r.risk), y(p.r.ret), p.r.label, [
+        'Return ' + pct(p.r.ret) + ' · risk ' + pct(p.r.risk),
+        'Income ' + pct(p.r.income) + ' · P(> 7.5%) ' + pct(p.r.prob),
+        'Private equity ' + pct0(p.r.w_private_equity) + ' · growth ' + pct0(p.r.growth),
+      ]))
+      .on('pointerleave', () => { tip.hidden = true; });
+    const s = rows.find((r) => r.id === pick);
+    if (s) g.append('circle').attr('cx', x(s.risk)).attr('cy', y(s.ret)).attr('r', 11).attr('fill', 'none').attr('stroke', 'var(--color-fg)').attr('stroke-width', 1.5).attr('pointer-events', 'none');
+
+    legend($('frontier-legend'), [
+      { ramp: [lo, hi], text: 'P(> 7.5%) ' + pct0(pr[0]) + ' to ' + pct0(pr[1]) },
+      { line: true, color: dash.colors[0], text: 'Highest probability by risk band' },
+      { line: true, color: dash.colors[3], dash: '4 3', text: 'Highest income by risk band' },
+      { symbol: d3.symbolStar, size: 90, color: colorOf('current'), text: 'Current' },
+      { symbol: d3.symbolDiamond, size: 70, color: colorOf('hi_income'), text: 'Highest income / return' },
+      { symbol: d3.symbolTriangle, size: 70, color: colorOf('max_prob_prev'), text: 'Maximum probability' },
+    ]);
+  }
+
+  // ---------- selected tiles ----------
+  function drawSelTiles(el, r) {
+    el.replaceChildren(); el.classList.remove('dash-skeleton');
+    const w = whereId(r.id);
+    const items = [
+      ['Expected return', 'ret', pct(r.ret), r.id === 'current' ? '' : pts(r.d_ret) + ' vs current'],
+      ['Risk', 'risk', pct(r.risk), r.id === 'current' ? '' : pts(r.d_risk) + ' vs current'],
+      ['Income yield', 'income', pct(r.income), r.id === 'current' ? '' : pts(r.d_income) + ' vs current'],
+      ['P(> 7.5%)', 'prob', pct(r.prob), r.id === 'current' ? '' : pts(r.d_prob) + ' vs current'],
+      ['Negative year, 1 in', 'years_per_negative', f1(r.years_per_negative) + ' years', 'P(return < 0) = ' + pct(r.p_neg)],
+    ];
+    for (const [lbl, field, val, delta] of items) {
+      const c = document.createElement('div'); c.className = 'mf-card mf-pcard'; c.style.cursor = 'default';
+      const l = document.createElement('div'); l.className = 'sub'; l.textContent = lbl;
+      const d = document.createElement('div'); d.className = 'mf-delta'; d.textContent = delta || ' ';
+      c.append(l, mark('div', 'big', 'port_calc', field, w, val), d);
+      el.appendChild(c);
+    }
+  }
+
+  // ---------- weights ----------
+  function drawWeights(el, assets, sel, cur) {
+    el.replaceChildren(); el.classList.remove('dash-skeleton');
+    const W = el.clientWidth, rowH = 36, H = assets.length * rowH + 8;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const probe = svg.append('text').attr('class', 'lab');
+    const lw = d3.max(assets, (a) => { probe.text(a.label); return probe.node().getComputedTextLength(); }) + 10; probe.remove();
+    const max = d3.max(assets, (a) => Math.max(+sel[a.weight_key], +cur[a.weight_key]));
+    const x = d3.scaleLinear([0, Math.max(0.1, max)], [lw, W - 44]);
+    const same = sel.id === 'current';
+    assets.forEach((a, i) => {
+      const y0 = i * rowH + 4;
+      svg.append('text').attr('class', 'lab').attr('x', 0).attr('y', y0 + (same ? 14 : 18)).text(a.label);
+      const bars = same ? [[sel, colorOf(sel.id), 0, 14]] : [[sel, colorOf(sel.id), 0, 12], [cur, 'var(--cds-chart-muted)', 14, 12]];
+      for (const [p, c, dy, h] of bars) {
+        const v = +p[a.weight_key];
+        svg.append('rect').attr('x', lw).attr('y', y0 + dy).attr('width', Math.max(0, x(v) - lw)).attr('height', h).attr('rx', 3).attr('fill', c);
+        svg.append('text').attr('class', 'lab').attr('x', x(v) + 4).attr('y', y0 + dy + h - 2).text(pct(v));
+      }
+    });
+    legend($('weights-legend'), same ? [{ color: colorOf(sel.id), text: sel.label }] :
+      [{ color: colorOf(sel.id), text: sel.label }, { color: 'var(--cds-chart-muted)', text: 'Current portfolio' }]);
+  }
+
+  // ---------- drawdown ----------
+  function drawDD(el, hist, sel) {
+    el.replaceChildren(); el.classList.remove('dash-skeleton');
+    const W = el.clientWidth, H = 300, m = { t: 8, r: 12, b: 26, l: 46 };
+    const series = (id) => hist.filter((h) => h.id === id).map((h) => ({ d: parse(h.date.slice(0, 10)), v: +h.drawdown }));
+    const ids = (sel.id === 'current' ? ['current'] : ['current', sel.id]).filter((id) => hist.some((h) => h.id === id));
+    const S = ids.map((id) => ({ id, pts: series(id) }));
+    const missing = sel.id !== 'current' && !ids.includes(sel.id);
+    const all = S.flatMap((s) => s.pts);
+    const x = d3.scaleUtc(d3.extent(all, (p) => p.d), [m.l, W - m.r]);
+    const y = d3.scaleLinear([d3.min(all, (p) => p.v) * 1.05, 0], [H - m.b, m.t]).nice();
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(5)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', (d) => y(d)).attr('y2', (d) => y(d));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor(W / 90))).tickSizeOuter(0)).call(clean);
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('.0%')).tickSizeOuter(0)).call(clean).call((g) => g.select('.domain').remove());
+    const line = d3.line().x((p) => x(p.d)).y((p) => y(p.v));
+    S.forEach((s) => {
+      const c = s.id === 'current' && ids.length > 1 ? 'var(--cds-chart-muted)' : colorOf(s.id);
+      svg.append('path').datum(s.pts).attr('fill', 'none').attr('stroke', c).attr('stroke-width', s.id === 'current' && ids.length > 1 ? 1.5 : 2).attr('stroke-linejoin', 'round').attr('d', line);
+    });
+    const tip = tipBox(el), bis = d3.bisector((p) => p.d).center;
+    const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)').attr('display', 'none');
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [mx, my] = d3.pointer(ev); const i = bis(S[0].pts, x.invert(mx)); const d = S[0].pts[i].d;
+        rule.attr('display', null).attr('x1', x(d)).attr('x2', x(d));
+        showTip(tip, el, x(d), my, ym(d), S.map((s) => (s.id === 'current' ? 'Current' : sel.label) + ' ' + pct(s.pts[i].v)));
+      })
+      .on('pointerleave', () => { rule.attr('display', 'none'); tip.hidden = true; });
+    if (missing) { legend($('dd-legend'), [{ line: true, color: colorOf('current'), text: 'Current portfolio (growth paths are published for the three named portfolios only)' }]); return; }
+    legend($('dd-legend'), ids.length > 1 ? [{ line: true, color: colorOf(sel.id), text: sel.label }, { line: true, color: 'var(--cds-chart-muted)', text: 'Current portfolio' }] :
+      [{ line: true, color: colorOf('current'), text: 'Current portfolio' }]);
+  }
+
+  function drawDDTable(dd, rows, sel) {
+    const tb = document.querySelector('#dd-table tbody'); tb.replaceChildren();
+    const ids = sel.id === 'current' ? ['current'] : [sel.id, 'current'];
+    const name = (id) => (rows.find((r) => r.id === id) || {}).label || id;
+    for (const id of ids) for (const d of dd.filter((x) => x.id === id).sort((a, b) => a.rank - b.rank)) {
+      const tr = document.createElement('tr'); tr.dataset.key = enc(d.id) + ',' + enc(d.rank);
+      const cells = [[name(d.id), 'l'], [String(d.rank)], [ym(parse(d.start)), 'l'], [ym(parse(d.valley)), 'l'],
+        [d.recovered ? ym(parse(d.recovered)) : 'Not yet', 'l'], [pct(+d.depth)], [String(+d.months_to_valley)], [d.months_to_recover === '' ? 'Not yet' : String(Math.round(+d.months_to_recover))]];
+      for (const [t, c] of cells) { const td = document.createElement('td'); td.textContent = t; if (c) td.className = c; tr.appendChild(td); }
+      tb.appendChild(tr);
+    }
+  }
+
+  function drawBands(rows, pick) {
+    const tb = document.querySelector('#band-table tbody'); tb.replaceChildren();
+    const fr = rows.filter((r) => r.group !== 'named').sort((a, b) => a.bucket - b.bucket || (a.group < b.group ? 1 : -1));
+    for (const r of fr) {
+      const tr = document.createElement('tr'); tr.dataset.key = enc(r.id); tr.className = 'click' + (r.id === pick ? ' sel' : '');
+      tr.addEventListener('click', () => choose(r.id));
+      const cells = [[String(r.band)], [pct(r.bucket_low)], [pct(r.bucket_high)], [r.group_label, 'l'],
+        [pct(r.ret)], [pct(r.risk)], [pct(r.income)], [pct(r.prob)], [pct0(r.growth)], [pct0(r.w_private_equity), r.w_private_equity > 0.4 ? 'mf-flag' : ''], [pct0(r.w_listed_property)]];
+      for (const [t, c] of cells) { const td = document.createElement('td'); td.textContent = t; if (c) td.className = c; tr.appendChild(td); }
+      tb.appendChild(tr);
+    }
+  }
+
+  function drawAssets(assets) {
+    const tb = document.querySelector('#asset-table tbody'); tb.replaceChildren();
+    const f2 = d3.format('.2f');
+    for (const a of assets) {
+      const tr = document.createElement('tr'); tr.dataset.key = enc(a.asset);
+      const pe = a.label === 'Private equity';
+      const cells = [[a.label, 'l'], [a.role === 'growth' ? 'Growth' : 'Income', 'l'], [pct(+a.cma_return)], [pct(+a.income_yield)], [pct(+a.hist_return)], [pct(+a.hist_vol)],
+        [a.label === 'Australasian equities' ? '1.00' : f2(+a.corr_aus_eq), pe ? 'mf-flag' : ''], [a.label === 'Global equities' ? '1.00' : f2(+a.corr_global_eq), pe ? 'mf-flag' : '']];
+      for (const [t, c] of cells) { const td = document.createElement('td'); td.textContent = t; if (c) td.className = c; tr.appendChild(td); }
+      tb.appendChild(tr);
+    }
+  }
+
+  dash.onData(() => {
+    const P = dash.data('port_calc'), Sm = dash.data('simulated'), A = dash.data('assets'), Hh = dash.data('history'), D = dash.data('drawdowns');
+    const bad = (d) => d.status === 'error' || d.status === 'missing';
+    const fEl = $('frontier-chart'), wEl = $('weights-chart'), dEl = $('dd-chart'), nEl = $('named-cards'), tEl = $('sel-tiles');
+
+    if (P.status !== 'ok') {
+      [nEl, tEl, fEl, wEl, dEl].forEach((el) => prep(el, false, bad(P) || bad(dash.data('portfolios'))));
+      return;
+    }
+    const scn = dash.params().scenario || 'as_reported';
+    const inScn = (d) => d.filter((r) => r.scenario === scn);
+    $('mf-scn').value = scn;
+    const rows = inScn(P.data);
+    const meta = dash.data('meta');
+    if (meta.status === 'ok') { const mm = inScn(meta.data)[0]; if (mm) { const span = ym(parse(mm.start)) + ' to ' + ym(parse(mm.end));
+      $('span-dd').textContent = span; $('span-as').textContent = span; } }
+    const pick = pickOf(rows);
+    const s = rows.find((r) => r.id === pick), cur = rows.find((r) => r.id === 'current');
+
+    // takeaway
+    const fill = (e) => { const r = rows.find((x) => 'id=' + enc(x.id) === e.dataset.where); if (!r) return; const v = r[e.dataset.field]; e.textContent = pct(v); e.classList.remove('dash-skeleton'); };
+    document.querySelectorAll('#takeaway [data-source=port_calc]').forEach(fill);
+
+    const mp = rows.find((r) => r.id === 'max_prob_prev'), cp = rows.find((r) => r.id === 'current');
+    $('scn-note').textContent = scn === 'as_reported'
+      ? 'Private equity risk as measured from its own history. The proxy barely moves with listed equities, so the optimiser treats it as a diversifier.'
+      : 'Private equity rebuilt to move with global equities at a correlation of 0.7. The maximum probability portfolio now carries ' + pct(mp.risk) + ' risk against ' + pct(cp.risk) + ' for the current portfolio.';
+    // selector
+    const opts = [...NAMED.map((id) => rows.find((r) => r.id === id)), ...rows.filter((r) => r.group !== 'named').sort((a, b) => (a.group < b.group ? 1 : -1) || a.bucket - b.bucket)].filter(Boolean);
+    const grpd = d3.group(opts, (r) => (r.group === 'named' ? 'Named options' : r.group === 'max_prob' ? 'Highest probability by risk band' : 'Highest income by risk band'));
+    sel.replaceChildren(...[...grpd].map(([k, v]) => { const og = document.createElement('optgroup'); og.label = k; v.forEach((r) => og.appendChild(new Option(r.label, r.id))); return og; }));
+    sel.value = pick;
+    $('sel-title').textContent = 'Selected portfolio: ' + s.label;
+
+    const f2 = d3.format('.2f');
+    const ep = $('ex-prob'); ep.classList.remove('dash-skeleton');
+    ep.textContent = 'Example for the current portfolio: (' + pct(cur.ret) + ' − 7.5%) ÷ ' + pct(cur.risk) + ' = ' + f2(cur.z) + ', and Φ(' + f2(cur.z) + ') = ' + pct(cur.prob) + '.';
+    const en = $('ex-neg'); en.classList.remove('dash-skeleton');
+    en.textContent = 'For the current portfolio Φ(−' + pct(cur.ret) + ' ÷ ' + pct(cur.risk) + ') = Φ(' + f2(-cur.ret / cur.risk) + ') = ' + pct(cur.p_neg) + ', so about 1 year in ' + f1(cur.years_per_negative) + '.';
+    drawNamed(nEl, rows, pick);
+    drawSelTiles(tEl, s);
+    drawBands(rows, pick);
+
+    if (Sm.status === 'ok') { drawFrontier(fEl, inScn(Sm.data), rows, pick); const sn = $('sim-n'); sn.textContent = d3.format(',')(inScn(Sm.data).length); sn.classList.remove('dash-skeleton'); } else prep(fEl, false, bad(Sm));
+    if (A.status === 'ok') {
+      drawWeights(wEl, inScn(A.data), s, cur); drawAssets(inScn(A.data));
+      const pe = A.data.find((a) => a.label === 'Private equity' && a.scenario === 'as_reported'), xp = $('ex-pe');
+      if (pe) { xp.classList.remove('dash-skeleton'); xp.textContent = 'As reported, its correlation is ' + d3.format('.2f')(+pe.corr_aus_eq) + ' with Australasian equities and ' + d3.format('.2f')(+pe.corr_global_eq) + ' with global equities, with ' + pct(+pe.hist_vol) + ' volatility.'; }
+    } else prep(wEl, false, bad(A));
+    if (Hh.status === 'ok') drawDD(dEl, inScn(Hh.data), s); else prep(dEl, false, bad(Hh));
+    if (D.status === 'ok') drawDDTable(inScn(D.data), rows, s);
+  });
+})();
+</script>
+
+<p class="site-foot">Built by src/frontier.py. Only derived results are published; raw index returns are not. Not investment advice.</p>
+</div>
+</body>
+</html>
