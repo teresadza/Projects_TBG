@@ -4,7 +4,7 @@ A Monte Carlo search for strategic asset allocations that maximise the probabili
 
 The dashboard is built from a real allocation review: real capital market assumptions, real portfolio weights and 22 years of monthly index returns (Apr 2003 to Mar 2025). Only derived results are published. The raw index returns are licensed data and are not in this repo. Not investment advice.
 
-**Dashboard:** open `docs/index.html` in a browser, or publish `docs/` with GitHub Pages.
+**Dashboard:** open `dashboard/index.html` in a browser, or publish `dashboard/` with GitHub Pages.
 
 ## What it does
 
@@ -71,7 +71,7 @@ python -m pytest
 
 ## What is published
 
-| In `docs/data.js` | Not published |
+| In `dashboard/data.js` | Not published |
 |---|---|
 | Statistics for every simulated portfolio | Monthly index returns |
 | Weights and statistics for named and frontier portfolios | |

@@ -79,7 +79,7 @@ def main() -> None:
                     help="monthly bull/bear labels to measure breakpoints against")
     ap.add_argument("--truth-label", default="Reference bear markets", help="name for the labels on the dashboard")
     ap.add_argument("--out", type=Path, default=ROOT / "output")
-    ap.add_argument("--docs", type=Path, default=ROOT / "docs")
+    ap.add_argument("--docs", type=Path, default=ROOT / "dashboard")
     ap.add_argument("--level", action="store_true", help="fit growth of $1 instead of its log")
     a = ap.parse_args()
 

@@ -4,11 +4,11 @@ Splits index histories into market regimes with a piecewise trend, then compares
 
 The dashboard uses actual monthly total return indices for the S&P 500, MSCI World and MSCI Emerging Markets (USD), January 2000 to March 2025. A synthetic dataset with known regimes is included to validate the method.
 
-**Dashboard:** open `docs/index.html` in a browser, or publish `docs/` with GitHub Pages.
+**Dashboard:** open `dashboard/index.html` in a browser, or publish `dashboard/` with GitHub Pages.
 
 ```
 pip install -r requirements.txt
-python src/regimes.py         # actual data in data/; results in output/, dashboard data in docs/data.js
+python src/regimes.py         # actual data in data/; results in output/, dashboard data in dashboard/data.js
 python -m pytest
 ```
 

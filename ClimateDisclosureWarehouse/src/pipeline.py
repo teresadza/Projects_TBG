@@ -7,7 +7,7 @@ Steps:
   1. run the SQL files in sql/ in order, into a DuckDB database
   2. log row counts and null counts for every table built
   3. run the data quality checks and stop if any 'error' check fails
-  4. export results to output/ and the dashboard data to docs/data.js
+  4. export results to output/ and the dashboard data to Dashboard/data.js
 """
 from __future__ import annotations
 
@@ -106,7 +106,7 @@ def main() -> None:
     p.add_argument("--raw", type=Path, default=ROOT / "data" / "raw", help="folder with the input CSV files")
     p.add_argument("--db", type=Path, default=ROOT / "output" / "warehouse.duckdb", help="DuckDB file to build")
     p.add_argument("--out", type=Path, default=ROOT / "output", help="folder for result CSVs")
-    p.add_argument("--docs", type=Path, default=ROOT / "docs", help="folder for the dashboard data file")
+    p.add_argument("--docs", type=Path, default=ROOT / "Dashboard", help="folder for the dashboard data file")
     a = p.parse_args()
     print(f"Building {a.db} from {a.raw}\n")
     try:

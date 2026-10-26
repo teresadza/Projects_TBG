@@ -4,7 +4,7 @@ A SQL pipeline that turns fund holdings and vendor emissions data into the clima
 
 All data in this repo is synthetic. Company names, financials, emissions and fund holdings are generated from a fixed random seed. The design is based on a production climate reporting warehouse I built for a New Zealand KiwiSaver provider; this is a fresh implementation, not that code.
 
-**[View the dashboard](docs/index.html)** (open `docs/index.html` in a browser, or publish `docs/` with GitHub Pages)
+**[View the dashboard](Dashboard/index.html)** (open `Dashboard/index.html` in a browser, or publish `Dashboard/` with GitHub Pages)
 
 ## What it does
 
@@ -130,7 +130,7 @@ sql/05_quality_checks.sql  data quality checks
 src/generate_data.py    synthetic data generator
 src/pipeline.py         runs the SQL, logs, checks, exports
 tests/test_metrics.py   known-answer tests
-docs/index.html         dashboard (reads docs/data.js)
+Dashboard/index.html         dashboard (reads Dashboard/data.js)
 output/                 warehouse.duckdb and result CSVs (not committed)
 ```
 

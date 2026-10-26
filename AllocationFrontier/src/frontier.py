@@ -11,7 +11,7 @@ Usage:
   python src/frontier.py                       # example inputs in data/
   python src/frontier.py --excel inputs.xlsx   # private workbook (sheets: CMA, Data, Portfolio Options)
 
-Only derived results are written to docs/data.js: portfolio statistics,
+Only derived results are written to dashboard/data.js: portfolio statistics,
 summary statistics per asset, drawdown episodes, and growth paths for the
 named portfolios. Raw index returns are not published.
 """
@@ -200,7 +200,7 @@ def main() -> None:
     ap.add_argument("--data", type=Path, default=ROOT / "data", help="folder with example CSV inputs")
     ap.add_argument("--excel", type=Path, help="private workbook to use instead of the example inputs")
     ap.add_argument("--out", type=Path, default=ROOT / "output")
-    ap.add_argument("--docs", type=Path, default=ROOT / "docs")
+    ap.add_argument("--docs", type=Path, default=ROOT / "dashboard")
     a = ap.parse_args()
 
     assumptions, returns, named = load_excel_inputs(a.excel) if a.excel else load_csv_inputs(a.data)
