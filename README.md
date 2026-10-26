@@ -1,6 +1,6 @@
 # Investment data and analytics projects
 
-Teresa Brandts-Giesen. I work on both sides of investment data: the portfolio questions (allocation, risk, performance, climate reporting) and the engineering that answers them (data pipelines, SQL warehouses, automated checks, dashboards). About 25 years in quantitative investment management, most recently running Bluepoint Analytics, an independent investment analytics consultancy in Auckland.
+Teresa Brandts-Giesen. I work on both sides of investment data: the portfolio questions (allocation, risk, performance, climate reporting) and the engineering that answers them (data pipelines, SQL warehouses, automated checks, dashboards). About 25 years in quantitative investment management and an independent investment analytics consultancy in Auckland.
 
 ## Projects
 
