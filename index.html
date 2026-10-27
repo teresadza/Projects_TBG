@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teresa Brandts-Giesen | Investment data projects</title>
+<meta name="description" content="Investment data and analytics projects: climate disclosure, asset allocation, market regimes and data pipelines.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#14202e; --muted:#5a6878; --line:#e2e6ec;
+  --accent:#1d5fa8; --accent-soft:#e8f0fa; --tag:#eef1f5;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f151c; --card:#17202a; --ink:#e6ebf1; --muted:#9aa8b8; --line:#26313d;
+         --accent:#6aa8ec; --accent-soft:#1a2b3e; --tag:#1f2934; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding:56px 24px 64px}
+header{margin-bottom:40px}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font-size:36px;line-height:1.15;margin:0 0 14px;font-weight:700}
+.lede{font-size:17px;color:var(--muted);max-width:720px;margin:0}
+.contact{margin-top:18px;font-size:15px}
+.contact a{color:var(--accent);text-decoration:none;font-weight:500}
+.contact a:hover{text-decoration:underline}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column}
+.card h2{font-size:19px;margin:0 0 4px}
+.kind{font-size:13px;color:var(--muted);margin:0 0 14px}
+.card p.body{font-size:15px;margin:0 0 14px;flex:1}
+.fact{font-size:14px;background:var(--accent-soft);border-radius:8px;padding:10px 12px;margin:0 0 16px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px;padding:0;list-style:none}
+.tags li{font-size:12px;background:var(--tag);color:var(--muted);border-radius:999px;padding:3px 10px}
+.links{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font-size:14px;font-weight:600;text-decoration:none;border-radius:8px;padding:8px 14px;border:1px solid var(--accent)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.ghost{color:var(--accent);background:transparent}
+.btn:hover{opacity:.88}
+.pending{font-size:13px;color:var(--muted);align-self:center}
+section.how{margin-top:48px}
+section.how h2{font-size:20px;margin:0 0 14px}
+.how ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.how li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;font-size:14px;color:var(--muted)}
+.how li b{display:block;color:var(--ink);margin-bottom:4px;font-size:15px}
+footer{margin-top:48px;font-size:13px;color:var(--muted)}
+@media (max-width:520px){ .wrap{padding:36px 16px 48px} h1{font-size:28px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Investment data and analytics</p>
+    <h1>Teresa Brandts-Giesen</h1>
+    <p class="lede">I work on both sides of investment data: the portfolio questions (allocation, risk, performance, climate reporting) and the engineering that answers them (pipelines, SQL warehouses, automated checks, dashboards). 25 years in quantitative investment management.</p>
+    <p class="contact"><a href="mailto:teresa@blupointanalytics.co.nz">teresa@blupointanalytics.co.nz</a> &nbsp;·&nbsp; <a href="https://github.com/teresadza/Projects_TBG">Source code on GitHub</a></p>
+  </header>
+
+  <div class="grid">
+    <article class="card">
+      <h2>Climate Disclosure Warehouse</h2>
+      <p class="kind">SQL pipeline · synthetic data</p>
+      <p class="body">Turns fund holdings and vendor emissions data into financed emissions, carbon footprint, WACI and coverage under PCAF. Handles late reporters, vendor restatements and Scope 3 gaps.</p>
+      <p class="fact">11 data quality checks stop bad runs. Known-answer tests check every metric.</p>
+      <ul class="tags"><li>DuckDB SQL</li><li>Python</li><li>pytest</li><li>D3</li></ul>
+      <div class="links">
+        <a class="btn primary" href="ClimateDisclosureWarehouse/Dashboard/">Dashboard</a>
+        <a class="btn ghost" href="https://github.com/teresadza/Projects_TBG/tree/main/ClimateDisclosureWarehouse">Code</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Allocation Frontier</h2>
+      <p class="kind">Monte Carlo · real assumptions</p>
+      <p class="body">Searches 25,000 portfolios for the best chance of beating a 7.5% return objective, then stress-tests the private equity proxy that drives the answer.</p>
+      <p class="fact">Made equity-like, the maximum probability portfolio's risk rises from 8.1% to 10.8%.</p>
+      <ul class="tags"><li>NumPy</li><li>pandas</li><li>SciPy</li><li>pytest</li><li>D3</li></ul>
+      <div class="links">
+        <a class="btn primary" href="AllocationFrontier/dashboard/">Dashboard</a>
+        <a class="btn ghost" href="https://github.com/teresadza/Projects_TBG/tree/main/AllocationFrontier">Code</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Return Regimes</h2>
+      <p class="kind">Regime detection · actual index data</p>
+      <p class="body">Splits 25 years of S&amp;P 500, MSCI World and MSCI Emerging Markets returns into regimes with a piecewise log trend, and compares indices over identical months.</p>
+      <p class="fact">S&amp;P 500 breakpoints land on the GFC, COVID and 2022 peaks and troughs and the dot-com trough.</p>
+      <ul class="tags"><li>Python</li><li>pandas</li><li>pytest</li><li>D3</li></ul>
+      <div class="links">
+        <a class="btn primary" href="ReturnRegimes/dashboard/">Dashboard</a>
+        <a class="btn ghost" href="https://github.com/teresadza/Projects_TBG/tree/main/ReturnRegimes">Code</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Portfolio Tools</h2>
+      <p class="kind">Web app</p>
+      <p class="body">NZD valuation from holdings snapshots and FX, time-weighted return with the currency effect shown separately, asset comparison, and what-if allocations against a baseline.</p>
+      <p class="fact">Includes the regime model as an optional FastAPI service.</p>
+      <ul class="tags"><li>React</li><li>TypeScript</li><li>Recharts</li><li>FastAPI</li></ul>
+      <div class="links">
+        <a class="btn ghost" href="https://github.com/teresadza/Projects_TBG/tree/main/asset-chart-compass">Code</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Datastream extraction</h2>
+      <p class="kind">Data pipeline</p>
+      <p class="body">Config-driven, incremental extract of total return indices from LSEG Datastream. History loads once, then a rolling current-month value each run, with logging.</p>
+      <p class="fact">Credentials stay in a local config file that is never committed.</p>
+      <ul class="tags"><li>Python</li><li>DatastreamPy</li><li>pandas</li></ul>
+      <div class="links">
+        <a class="btn ghost" href="https://github.com/teresadza/Projects_TBG/tree/main/Datastream_">Code</a>
+      </div>
+    </article>
+  </div>
+
+  <section class="how">
+    <h2>How the work is built</h2>
+    <ul>
+      <li><b>Reproducible</b>Each project runs from one command and rebuilds from its inputs.</li>
+      <li><b>Checked</b>Pipelines test their own output and fail loudly.</li>
+      <li><b>Explained</b>Every metric has its formula and a worked example in the README.</li>
+      <li><b>Safe to share</b>No credentials, raw licensed data or client data are committed.</li>
+    </ul>
+  </section>
+
+  <footer>Not investment advice. Results are for demonstration.</footer>
+</div>
+</body>
+</html>
